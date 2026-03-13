@@ -34,6 +34,7 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string(),
 
   GMAIL_APP_PASSWORD: z.string(),
+  GROQ_API_KEY: z.string(),
   FORM_EMAIL: z.string().email(),
 });
 
