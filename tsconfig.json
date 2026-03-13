@@ -1,0 +1,31 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    // File Layout
+    // "rootDir": "./src",
+    "outDir": "./dist",
+
+    "types": [],
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "target": "ES2023",
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+  },
+  "include": [
+    "src"
+, "../prisma/blog-app/src/utils/mailServices.ts"  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+  ]
+}

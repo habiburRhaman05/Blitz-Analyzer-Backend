@@ -1,0 +1,183 @@
+import type { Request, Response } from "express";
+import { sendSuccess } from "../../utils/apiResponse";
+import { asyncHandler } from "../../utils/asyncHandler";
+import { authServices } from "./auth.service";
+import { CookieUtils } from "../../utils/cookie";
+import { tokenUtils } from "../../utils/token";
+import { envConfig } from "../../config/env";
+import status from "http-status"
+import { AppError } from "../../utils/AppError";
+import { auth } from "../../lib/auth";
+const isProduction = envConfig.NODE_ENV === "production";
+
+// -------------------- REGISTER --------------------
+const registerController = asyncHandler(async (req: Request, res: Response) => {
+  const { name, email, password ,contactNumber} = req.body;
+
+  const result = await authServices.registerUser({
+    name, email, password,contactNumber
+  })
+  return sendSuccess(res, {
+    statusCode: 201,
+    data: result,
+    message: " Patient Account Created Successfully"
+  })
+});
+
+// -------------------- LOGIN --------------------
+const loginController = asyncHandler(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  ;
+
+  const data = await authServices.loginUser({ email, password })
+
+  tokenUtils.setAccessTokenCookie(res, data.accessToken)
+  tokenUtils.setRefreshTokenCookie(res, data.refreshToken)
+  tokenUtils.setBetterAuthSessionCookie(res, data.sessionToken)
+
+  return sendSuccess(res, {
+    statusCode: 200,
+    data,
+    message: "your are LoggedIn Sucessfully"
+  })
+});
+// -------------------- PROFILE DATA --------------------
+const getUserProfileController = asyncHandler(async (req: Request, res: Response) => {
+  const user = await authServices.getUserProfile(res.locals.auth)
+  return sendSuccess(res, {
+    data: user,
+    message: "Profile Data fetch Successfully"
+  })
+});
+// -------------------- LOGOUT --------------------
+const logoutUserController = asyncHandler(async (req: Request, res: Response) => {
+
+
+  const better_auth_session_token = req.cookies["better-auth.session_token"]
+  const refreshToken = req.cookies["refreshToken"]
+
+  const user = await authServices.logoutUser(better_auth_session_token,refreshToken)
+  CookieUtils.clearCookie(res, "accessToken", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: '/',
+    maxAge: 15 * 60 * 1000,
+  })
+  CookieUtils.clearCookie(res, "refreshToken", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  })
+  CookieUtils.clearCookie(res, "better-auth.session_token", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: '/',
+    maxAge: 24 * 60 * 60 * 1000,
+  })
+  return sendSuccess(res, {
+    statusCode: 200,
+    data: user,
+    message: "User Logout Successfully"
+  })
+});
+// -------------------- CHANGE PASSWORD --------------------
+const changePasswordController = asyncHandler(async (req: Request, res: Response) => {
+
+
+
+  const better_auth_session_token = req.cookies["better-auth.session_token"];
+
+  const { currentPassword, newPassword } = req.body
+
+  const user = await authServices.changePassword({
+    sessionToken: better_auth_session_token,
+    currentPassword,
+    newPassword
+  })
+
+  return sendSuccess(res, {
+    statusCode: 200,
+    data: user,
+    message: "Password change Successfully"
+  })
+});
+// -------------------- REFRESH TOKEN --------------------
+const getRefreshTokenController = asyncHandler(async (req: Request, res: Response) => {
+
+
+
+  const refreshToken = req.cookies.refreshToken;
+ 
+  if (!refreshToken) {
+    throw new AppError("Refresh token is missing", status.UNAUTHORIZED);
+  }
+
+  // const  {cookie,token} = req.body;
+  const result = await authServices.getAllNewTokens(refreshToken)
+  // console.log(sessionToken);
+
+  tokenUtils.setAccessTokenCookie(res, result.accessToken)
+  tokenUtils.setRefreshTokenCookie(res, result.refreshToken)
+  tokenUtils.setBetterAuthSessionCookie(res, result.sessionToken)
+
+  return sendSuccess(res, {
+    statusCode: 201,
+    message: "refresh token generate Successfully",
+    data: result
+  })
+});
+// -------------------- REQUEST FOR RESET PASSWORD MAIL --------------------
+const requestPasswordResetController = asyncHandler(async (req: Request, res: Response) => {
+
+  const { email } = req.body;
+
+
+  const result = await authServices.requestResetPassword(email)
+
+  return sendSuccess(res, {
+    statusCode: 201,
+    message: "Reset Password Link successFully send; Check Index",
+  })
+});
+// --------------------  RESET PASSWORD MAIL --------------------
+const resetPasswordController = asyncHandler(async (req: Request, res: Response) => {
+
+  const { newPassword } = req.body;
+  const { token } = req.query
+
+  const result = await authServices.resetPassword(newPassword, token as string)
+  return sendSuccess(res, {
+    statusCode: 201,
+    message: "Your Reset Password  successFully",
+  })
+});
+
+// --------------------  VERIFY EMAIL --------------------
+const verifyEmail = asyncHandler(async (req, res) => {
+  const { token, callbackURL } = req.query;
+  if (!token || typeof token !== "string") {
+    return res.status(400).send("Token missing");
+  }
+  try {
+   await authServices.verifyEmail(token)
+   console.log(callbackURL);
+   
+    return res.redirect(callbackURL as string);
+  } catch (error: any) {
+    return res.redirect(`${envConfig.CLIENT_URL}/verify-email-error`);
+  }
+})
+
+
+
+export const authControllers = {
+  registerController, loginController, getUserProfileController, logoutUserController,
+  changePasswordController,
+  getRefreshTokenController,
+  requestPasswordResetController, resetPasswordController,
+  verifyEmail
+};

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Using your design tokens */
+        :root {
+            --primary: 221 83% 53%;
+            --radius: 0.625rem;
+        }
+        
+        body { 
+            background-color: hsl(210, 20%, 98%); 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .wrapper { padding: 40px 20px; }
+        
+        .main-card { 
+            max-width: 480px; 
+            margin: 0 auto; 
+            background: #ffffff; 
+            border-radius: 10px; /* Matching your 0.625rem */
+            padding: 40px; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid hsl(220, 13%, 91%);
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header-accent {
+            height: 4px;
+            width: 40px;
+            background-color: hsl(221, 83%, 53%);
+            border-radius: 2px;
+            margin-bottom: 12px;
+        }
+
+        .brand-name {
+            color: hsl(224, 71%, 4%);
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        h2 { color: hsl(224, 71%, 4%); margin: 0 0 16px 0; font-size: 22px; font-weight: 700; }
+        
+        .text { color: hsl(220, 9%, 46%); line-height: 1.6; font-size: 15px; }
+        
+        .otp-container {
+            background-color: hsl(220, 14%, 96%);
+            border-radius: 8px;
+            padding: 32px 24px;
+            margin: 32px 0;
+            text-align: center;
+            border: 1px dashed hsl(220, 13%, 80%);
+        }
+
+        .otp-code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: 12px;
+            color: hsl(221, 83%, 53%);
+            margin: 0;
+            padding-left: 12px; /* Visual centering for spaced letters */
+        }
+
+        .expiry-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: hsl(221, 83%, 53%);
+            background-color: hsla(221, 83%, 53%, 0.1);
+            padding: 4px 12px;
+            border-radius: 999px;
+            display: inline-block;
+            margin-top: 16px;
+        }
+
+        .footer { 
+            text-align: center; 
+            font-size: 12px; 
+            color: hsl(220, 9%, 46%); 
+            margin-top: 32px; 
+            line-height: 1.8;
+        }
+
+        .security-note {
+            border-top: 1px solid hsl(220, 13%, 91%);
+            margin-top: 32px;
+            padding-top: 20px;
+            font-size: 13px;
+            color: hsl(220, 9%, 46%);
+        }
+
+        .highlight { color: hsl(224, 71%, 4%); font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="main-card">
+            <div class="header-accent"></div>
+            <div class="brand-name">Blitz Analyzer</div>
+            
+            <h2>Verify your account</h2>
+            <p class="text">Hi <%= name %>,</p>
+            <p class="text">To start analyzing your resume with our <span class="highlight">AI-driven ATS scoring engine</span>, please use the following one-time password (OTP) to verify your email address:</p>
+            
+            <div class="otp-container">
+                <p class="otp-code"><%= otp %></p>
+                <span class="expiry-text">Valid for <%= expiryTime %> minutes</span>
+            </div>
+
+            <p class="text">Verified users get priority access to our fine-tuned Llama models for structured data extraction.</p>
+
+            <div class="security-note">
+                <strong>Safety Tip:</strong> If you did not request this verification for Resume-AI Analyzer, please ignore this email or contact support if you have concerns.
+            </div>
+        </div>
+        <div class="footer">
+            © 2026 <strong>Blitz Analyzer</strong>. Empowering careers with AI.<br>
+            Narayanganj, Dhaka Division, Bangladesh.
+        </div>
+    </div>
+</body>
+</html>
