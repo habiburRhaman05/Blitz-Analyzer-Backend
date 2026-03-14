@@ -17,6 +17,14 @@ export const UserRole = {
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
 
+export const AnalysisType = {
+  ATS_SCAN: 'ATS_SCAN',
+  JOB_MATCHER: 'JOB_MATCHER'
+} as const
+
+export type AnalysisType = (typeof AnalysisType)[keyof typeof AnalysisType]
+
+
 export const UserStatus = {
   ACTIVE: 'ACTIVE',
   BANNED: 'BANNED',
@@ -24,3 +32,21 @@ export const UserStatus = {
 } as const
 
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
+
+
+export const PaymentStatus = {
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+
+
+export const PaymentMethod = {
+  STRIPE: 'STRIPE',
+  SSLCOMMERZ: 'SSLCOMMERZ',
+  PAYPAL: 'PAYPAL'
+} as const
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]

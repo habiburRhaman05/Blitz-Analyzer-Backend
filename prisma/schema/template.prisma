@@ -1,0 +1,16 @@
+model Template {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  previewUrl  String
+  price       Int      // credit price
+  isPremium   Boolean  @default(false)
+
+  htmlLayout  String   // template HTML
+  sections    Json     // supported sections
+
+  createdAt   DateTime @default(now())
+}
+
+

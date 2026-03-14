@@ -1,127 +1,169 @@
-"use client";
+import { pdfToText } from "pdf-ts"
+import crypto from "crypto"
+import { prisma } from "../../lib/prisma"
 
-import { pdfToText } from "pdf-ts";
-import { IResumeJobMatcherPayload } from "./analyzer.interface";
-import { Groq } from "groq-sdk";
-import { envConfig } from "../../config/env";
 
-const groq = new Groq({ apiKey: envConfig.GROQ_API_KEY});
+import {
+  ATS_OPTIMIZATION_PROMPT,
+  ATS_SYSTEM_PROMPT,
+  JOB_MATCH_PROMPT
+} from "./analyzer.prompt"
 
-/**
- * Extracts and cleans text from a PDF buffer
- */
-const parseResumeService = async (fileBuffer: Buffer): Promise<string> => {
-  console.log(envConfig.GROQ_API_KEY);
-  
-  const text = await pdfToText(fileBuffer);
-  return text.replace(/\s+/g, ' ').trim();
-};
+import {
+  ImprovePayload,
+  ResumeJobMatcherPayload,
+  SaveAnalysisPayload,
+  SaveResumePayload
+} from "./analyzer.interface"
+import { runLLM } from "./analyzer.utils"
 
-/**
- * Performs a deep ATS (Applicant Tracking System) scan using LLM
- */
 
-// imprve leter - add pdf cotent validation is text if formating like resume or not etc and many more
+const parseResumeService = async (
+  fileBuffer: Buffer
+): Promise<string> => {
+
+  const text = await pdfToText(fileBuffer)
+
+  if (!text || text.length < 100) {
+    throw new Error("Invalid resume content")
+  }
+
+  return text.replace(/\s+/g, " ").trim()
+}
+
+
 const resumeATSScan = async (resumeText: string) => {
-  const systemPrompt = `
-    You are an expert ATS (Applicant Tracking System) analyzer. 
-    Analyze the provided resume text and return a detailed JSON report.
-    
-    The JSON must follow this exact structure:
-    {
-      "status": "success",
-      "analysis_type": "ATS_SCAN",
-      "overall_score": number (0-100),
-      "summary": "string",
-      "vitals": [
-        { "label": "Formatting", "score": number, "status": "success" | "warning" | "error", "insight": "string" },
-        { "label": "Readability", "score": number, "status": "success" | "warning" | "error", "insight": "string" },
-        { "label": "Skill Density", "score": number, "status": "success" | "warning" | "error", "insight": "string" }
-      ],
-      "technical_audit": {
-        "header_check": "PASS" | "FAIL",
-        "section_structure": "PASS" | "FAIL",
-        "font_compatibility": "PASS" | "FAIL",
-        "tables_detected": "NONE" | "DETECTED"
-      },
-      "keyword_cloud": {
-        "detected": ["string"],
-        "missing_high_priority": ["string"]
-      },
-      "critical_improvements": [
-        { "area": "string", "issue": "string", "fix": "string" }
-      ]
-    }
-  `;
 
-  const userPrompt = `Analyze this resume for ATS compatibility: ${resumeText}`;
+  const result = await runLLM(
+    ATS_SYSTEM_PROMPT,
+    `Analyze resume: ${resumeText}`
+  )
 
-  const chatCompletion = await groq.chat.completions.create({
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-     model: "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" }, // এটি ব্যবহার করলে প্রম্পটে 'json' থাকা বাধ্যতামূলক
-      temperature: 0.1,
-  });
-
-  const result = JSON.parse(chatCompletion.choices[0].message.content || "{}");
-  return {
-    id: crypto.randomUUID(), // Dynamic ID generation
-    ...result
-  };
-};
-
-/**
- * Matches a resume against a specific job description
- */
-const resumeJobMatcher = async ({ resumeText, jobInfo }: IResumeJobMatcherPayload) => {
-  const systemPrompt = `
-    You are a professional technical recruiter. 
-    Compare the candidate's resume against the Job Title: "${jobInfo.title}", 
-    Description: "${jobInfo.description}", and Requirements: "${jobInfo.requirements}".
-    
-    Return a JSON object with this exact structure:
-    {
-      "status": "success",
-      "analysis_type": "JOB_MATCHER",
-      "match_percentage": number (0-100),
-      "match_verdict": "string (e.g., Strong Contender, Potential Fit, etc.)",
-      "verdict_description": "string",
-      "requirement_mapping": [
-        { "requirement": "string", "status": "MATCHED" | "PARTIAL" | "MISSING", "evidence": "string" }
-      ],
-      "top_skill_gaps": ["string"],
-      "strategic_advice": {
-        "resume_tweak": "string",
-        "interview_focus": "string",
-        "custom_pitch": "string"
-      }
-    }
-  `;
-
-  const userPrompt = `Resume Content: ${resumeText}`;
-
-  const chatCompletion = await groq.chat.completions.create({
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-      model: "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" }, // এটি ব্যবহার করলে প্রম্পটে 'json' থাকা বাধ্যতামূলক
-      temperature: 0.1,
-  });
-
-  const result = JSON.parse(chatCompletion.choices[0].message.content || "{}");
   return {
     id: crypto.randomUUID(),
     ...result
-  };
+  }
+}
+
+
+const resumeJobMatcher = async ({
+  resumeText,
+  jobInfo
+}: ResumeJobMatcherPayload) => {
+
+  const result = await runLLM(
+    JOB_MATCH_PROMPT(jobInfo),
+    resumeText
+  )
+
+  return {
+    id: crypto.randomUUID(),
+    ...result
+  }
+}
+
+
+const saveAnalysisDetails = async (
+  userId: string,
+  payload: SaveAnalysisPayload
+) => {
+
+  await prisma.user.findUniqueOrThrow({
+    where: { id: userId }
+  })
+
+  return prisma.analysis.create({
+    data: {
+   
+   analysisType: payload.analysisType,
+      resumeText: payload.resumeText,
+      result: payload.result || {},
+      jobData:{
+        title:payload.jobData?.title,
+        description:payload.jobData?.description,
+        requirements:payload.jobData?.requirements,
+      },
+      resumeUrl: "dummy-url",
+      userId
+    }
+  })
+}
+
+
+const makeAtsFriendly = async (
+  prevResumeText: string,
+  userPrompt = "Make this resume ATS friendly with score between 80-95 and optimize formatting, keywords, and readability"
+) => {
+  const systemPrompt = ATS_OPTIMIZATION_PROMPT;
+
+  const result = await runLLM(
+    systemPrompt,
+    `${userPrompt}\n\nResume:\n${prevResumeText}`
+  );
+
+  return result;
 };
+
+  const applyImprovement = async (
+  prevResumeText: string,
+  payload: ImprovePayload
+) => {
+
+  const { title, content } = payload
+
+  const systemPrompt = `
+You are a professional resume editor.
+
+Apply the requested improvement to the resume.
+
+Return JSON:
+
+{
+ "status":"success",
+ "updated_resume":"string"
+}
+`
+
+  const userPrompt = `
+Improvement Title: ${title}
+
+Content to apply:
+${content.join(", ")}
+
+Resume:
+${prevResumeText}
+`
+
+  const result = await runLLM(systemPrompt, userPrompt)
+
+  return result
+}
+
+const saveResume = async (payload: SaveResumePayload) => {
+
+  const { userId, name, resumeUrl } = payload
+
+  await prisma.user.findUniqueOrThrow({
+    where: { id: userId }
+  })
+
+  const resume = await prisma.resume.create({
+    data: {
+      userId,
+      name,
+      resumeUrl
+    }
+  })
+
+  return resume
+}
 
 export const analyzerServices = {
   parseResumeService,
   resumeJobMatcher,
   resumeATSScan,
+  saveAnalysisDetails,
+  saveResume,
+  applyImprovement,
+  makeAtsFriendly
 };

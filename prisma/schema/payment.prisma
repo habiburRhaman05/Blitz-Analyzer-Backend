@@ -1,0 +1,15 @@
+model Payment {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+
+  amount        Int
+  currency      String   @default("USD")
+
+  paymentMethod PaymentMethod
+  status        PaymentStatus
+
+  transactionId String?  // stripe / sslcommerz id
+
+  createdAt     DateTime @default(now())
+}

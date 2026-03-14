@@ -8,8 +8,13 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/Analysis.js'
 export type * from './models/User.js'
 export type * from './models/Session.js'
 export type * from './models/Account.js'
 export type * from './models/Verification.js'
+export type * from './models/CreditWallet.js'
+export type * from './models/Payment.js'
+export type * from './models/Resume.js'
+export type * from './models/Template.js'
 export type * from './commonInputTypes.js'

@@ -1,0 +1,8 @@
+model Resume {
+  id        String   @id @default(uuid())
+  userId    String
+  user User @relation(fields: [userId],references: [id])
+  name      String
+  resumeUrl String
+  createdAt DateTime @default(now())
+}

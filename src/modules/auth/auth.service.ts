@@ -153,7 +153,12 @@ const getUserProfile = async (user: IRequestUser) => {
   if (cached) return JSON.parse(cached);
 
   const baseUser = await prisma.user.findUnique({
-    where: { id: user.userId }
+    where: { id: user.userId },include:{
+      wallet:true,
+      analysisHistory:true,
+      savedResumes:true,
+      payments:true
+    }
   });
 
   if (!baseUser)

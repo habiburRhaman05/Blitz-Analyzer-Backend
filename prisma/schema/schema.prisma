@@ -15,6 +15,12 @@ enum UserRole {
   
   
 }
+enum AnalysisType {
+  ATS_SCAN
+  JOB_MATCHER
+  
+  
+}
 enum UserStatus {
   ACTIVE
   BANNED
@@ -22,3 +28,14 @@ enum UserStatus {
 }
 
 
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum PaymentMethod {
+  STRIPE
+  SSLCOMMERZ
+  PAYPAL
+}
