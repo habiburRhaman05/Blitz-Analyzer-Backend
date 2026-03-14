@@ -32,7 +32,7 @@ const parseResumeService = async (
 }
 
 
-const resumeATSScan = async (resumeText: string) => {
+const resumeATSScan = async (resumeText: string,id) => {
 
   const result = await runLLM(
     ATS_SYSTEM_PROMPT,
@@ -40,7 +40,7 @@ const resumeATSScan = async (resumeText: string) => {
   )
 
   return {
-    id: crypto.randomUUID(),
+    id,
     ...result
   }
 }
@@ -48,7 +48,7 @@ const resumeATSScan = async (resumeText: string) => {
 
 const resumeJobMatcher = async ({
   resumeText,
-  jobInfo
+  jobInfo,id
 }: ResumeJobMatcherPayload) => {
 
   const result = await runLLM(
@@ -57,7 +57,7 @@ const resumeJobMatcher = async ({
   )
 
   return {
-    id: crypto.randomUUID(),
+    id,
     ...result
   }
 }
@@ -74,7 +74,7 @@ const saveAnalysisDetails = async (
 
   return prisma.analysis.create({
     data: {
-   
+    id:payload.result.id,
    analysisType: payload.analysisType,
       resumeText: payload.resumeText,
       result: payload.result || {},

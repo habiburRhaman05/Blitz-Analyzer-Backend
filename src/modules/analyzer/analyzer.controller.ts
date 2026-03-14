@@ -5,6 +5,9 @@ import { sendError, sendSuccess } from "../../utils/apiResponse";
 import { v7 as uuidv7 } from "uuid";
 import { redis } from "../../config/redis";
 import status from "http-status";
+import { AnalysisScalarFieldEnum } from "../../generated/prisma/internal/prismaNamespaceBrowser";
+import { AnalysisType } from "../../generated/prisma/enums";
+import { prisma } from "../../lib/prisma";
 
 
 
@@ -96,14 +99,15 @@ const completeAnalysesResumeResult = asyncHandler(async (req: Request, res: Resp
 
   let result;
 
-  if (analysisType === "ats_scan") {
-    result = await analyzerServices.resumeATSScan(parseText);
+  if (analysisType === AnalysisType.ATS_SCAN) {
+    result = await analyzerServices.resumeATSScan(parseText,id as string);
   }
 
-  if (analysisType === "job_match") {
+  if (analysisType ===  AnalysisType.JOB_MATCHER) {
     result = await analyzerServices.resumeJobMatcher({
       resumeText: parseText,
-      jobInfo
+      jobInfo,
+      id:id as string
     });
   }
 
@@ -129,7 +133,7 @@ const saveAnalysisController = asyncHandler(async (req: Request, res: Response) 
 
   const { id } = req.params;
 
-  const userId = res.locals.user?.id; // assuming auth middleware
+  const userId = res.locals.auth?.userId; // assuming auth middleware
 
   if (!userId) {
     return sendError(res, {
@@ -153,6 +157,18 @@ const saveAnalysisController = asyncHandler(async (req: Request, res: Response) 
 
   const result = JSON.parse(resultCache);
   const parsed = JSON.parse(parseCache);
+console.log(result);
+
+   const analysis = await prisma.analysis.findUnique({
+    where:{id:result.id}
+   })
+
+   if(analysis) {
+     return sendError(res, {
+      message: "Analysis already  saved",
+      statusCode: status.BAD_REQUEST
+    });
+   }
 
   const newAnalysis = await analyzerServices.saveAnalysisDetails(
     userId,

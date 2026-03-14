@@ -1,5 +1,5 @@
 model Analysis {
-  id           String       @id @default(uuid())
+  id           String       @id @unique
   userId String
   user User  @relation(fields: [userId],references: [id])
   analysisType AnalysisType

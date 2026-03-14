@@ -24,6 +24,7 @@ export interface JobInfo {
 
 export interface ResumeJobMatcherPayload {
   resumeText: string
+  id: string
   jobInfo: JobInfo
 }
 

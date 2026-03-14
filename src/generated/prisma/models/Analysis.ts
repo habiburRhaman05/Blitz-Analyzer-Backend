@@ -226,7 +226,7 @@ export type AnalysisWhereUniqueInput = Prisma.AtLeast<{
   result?: Prisma.JsonNullableFilter<"Analysis">
   createdAt?: Prisma.DateTimeFilter<"Analysis"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id">
+}, "id" | "id">
 
 export type AnalysisOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -257,7 +257,7 @@ export type AnalysisScalarWhereWithAggregatesInput = {
 }
 
 export type AnalysisCreateInput = {
-  id?: string
+  id: string
   analysisType: $Enums.AnalysisType
   resumeText: string
   resumeUrl: string
@@ -268,7 +268,7 @@ export type AnalysisCreateInput = {
 }
 
 export type AnalysisUncheckedCreateInput = {
-  id?: string
+  id: string
   userId: string
   analysisType: $Enums.AnalysisType
   resumeText: string
@@ -301,7 +301,7 @@ export type AnalysisUncheckedUpdateInput = {
 }
 
 export type AnalysisCreateManyInput = {
-  id?: string
+  id: string
   userId: string
   analysisType: $Enums.AnalysisType
   resumeText: string
@@ -426,7 +426,7 @@ export type AnalysisUncheckedUpdateManyWithoutUserNestedInput = {
 }
 
 export type AnalysisCreateWithoutUserInput = {
-  id?: string
+  id: string
   analysisType: $Enums.AnalysisType
   resumeText: string
   resumeUrl: string
@@ -436,7 +436,7 @@ export type AnalysisCreateWithoutUserInput = {
 }
 
 export type AnalysisUncheckedCreateWithoutUserInput = {
-  id?: string
+  id: string
   analysisType: $Enums.AnalysisType
   resumeText: string
   resumeUrl: string
@@ -486,7 +486,7 @@ export type AnalysisScalarWhereInput = {
 }
 
 export type AnalysisCreateManyUserInput = {
-  id?: string
+  id: string
   analysisType: $Enums.AnalysisType
   resumeText: string
   resumeUrl: string
