@@ -17,7 +17,7 @@ const completeAnalysesResumeResult = asyncHandler(async(req,res)=>{
 
   // check redis key exist 
 
-   const data = await redis.get(id as string);
+   const data = await redis.get(`resume:${id}`);
    
    if(!data){
      return sendError(res,{
@@ -25,22 +25,29 @@ const completeAnalysesResumeResult = asyncHandler(async(req,res)=>{
      })
    }
    
-    const {jobInfo,parseText,scan_type} = JSON.parse(data)
-
-
-    let result = {}
-    if(scan_type === "ats-scan"){
-      result = await analyzerServices.resumeATSScan(parseText);
-    }
-    if(scan_type === "job-matcher"){
-      result = await analyzerServices.resumeJobMatcher({resumeText:parseText,jobInfo});
-    }
-
    
-    return sendSuccess(res,{
+    const {jobInfo,parseText,analysisType} = JSON.parse(data)
+
+console.log(JSON.parse(data));
+
+ 
+    if(analysisType === "ats_scan"){
+      let result = await analyzerServices.resumeATSScan(parseText);
+      return sendSuccess(res,{
         message:"Resume Analysis Successfully",
         data:result
     })
+    }
+    if(analysisType === "job_match"){
+     let  result = await analyzerServices.resumeJobMatcher({resumeText:parseText,jobInfo});
+          return sendSuccess(res,{
+        message:"Resume Analysis Successfully",
+        data:result
+    })
+    }
+
+   
+    
 })
 
 
@@ -51,9 +58,10 @@ console.log("comming");
   if (!req.file) {
     return res.status(400).send({ error: "No file uploaded" });
   }
-console.log(req.body);
 
-  const { analysisType, jobInfo } = req.body;
+
+  const { analysisType, jobData } = req.body;
+console.log("body",req.body);
 
   if (!analysisType) {
     return res.status(400).json({ error: "analysisType is required" });
@@ -67,7 +75,7 @@ console.log(req.body);
     id: analysisId,
     parseText,
     analysisType,
-    jobInfo: analysisType === "job-matcher" ? jobInfo : null,
+    jobInfo: analysisType === "job_match" ? JSON.parse(jobData) : null,
 
     resumeFile: {
       filename: req.file.originalname,
