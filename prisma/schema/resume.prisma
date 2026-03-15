@@ -2,7 +2,11 @@ model Resume {
   id        String   @id @default(uuid())
   userId    String
   user User @relation(fields: [userId],references: [id])
-  name      String
-  resumeUrl String
+  name      String @default(uuid())
+  resumeUrl String?
+  templateId String 
+  template Template @relation(fields: [templateId],references: [id])
+  resumeData Json
   createdAt DateTime @default(now())
+  resumeHtml String
 }

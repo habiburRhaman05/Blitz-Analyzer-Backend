@@ -2,6 +2,7 @@ model Template {
   id          String   @id @default(uuid())
   name        String
   slug        String   @unique
+  
   descriptions Json
   previewUrl  String
   price       Int      // credit price
@@ -9,7 +10,7 @@ model Template {
 
   htmlLayout  String   // template HTML
   sections    Json     // supported sections
-
+  resume Resume[]
   createdAt   DateTime @default(now())
 }
 

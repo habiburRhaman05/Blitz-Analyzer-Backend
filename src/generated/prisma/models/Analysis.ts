@@ -1227,6 +1227,11 @@ export type AnalysisFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` Analyses.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Analyses.
+   */
   distinct?: Prisma.AnalysisScalarFieldEnum | Prisma.AnalysisScalarFieldEnum[]
 }
 

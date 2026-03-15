@@ -184,7 +184,10 @@ export const ResumeScalarFieldEnum = {
   userId: 'userId',
   name: 'name',
   resumeUrl: 'resumeUrl',
-  createdAt: 'createdAt'
+  templateId: 'templateId',
+  resumeData: 'resumeData',
+  createdAt: 'createdAt',
+  resumeHtml: 'resumeHtml'
 } as const
 
 export type ResumeScalarFieldEnum = (typeof ResumeScalarFieldEnum)[keyof typeof ResumeScalarFieldEnum]
@@ -194,7 +197,7 @@ export const TemplateScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
-  description: 'description',
+  descriptions: 'descriptions',
   previewUrl: 'previewUrl',
   price: 'price',
   isPremium: 'isPremium',

@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.3.0
- * Query Engine version: 9d6ad21cbbceab97458517b147a6a09ff43aa735
+ * Prisma Client JS version: 7.5.0
+ * Query Engine version: 280c870be64f457428992c43c1f6d557fab6e29e
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.3.0",
-  engine: "9d6ad21cbbceab97458517b147a6a09ff43aa735"
+  client: "7.5.0",
+  engine: "280c870be64f457428992c43c1f6d557fab6e29e"
 }
 
 /**
@@ -1223,7 +1223,10 @@ export const ResumeScalarFieldEnum = {
   userId: 'userId',
   name: 'name',
   resumeUrl: 'resumeUrl',
-  createdAt: 'createdAt'
+  templateId: 'templateId',
+  resumeData: 'resumeData',
+  createdAt: 'createdAt',
+  resumeHtml: 'resumeHtml'
 } as const
 
 export type ResumeScalarFieldEnum = (typeof ResumeScalarFieldEnum)[keyof typeof ResumeScalarFieldEnum]
@@ -1233,7 +1236,7 @@ export const TemplateScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
-  description: 'description',
+  descriptions: 'descriptions',
   previewUrl: 'previewUrl',
   price: 'price',
   isPremium: 'isPremium',

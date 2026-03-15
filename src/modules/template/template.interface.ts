@@ -1,8 +1,12 @@
 export interface ITemplateDataPayload {
 name: string;
-  descriptions: TemplateDescriptions;
-  templateString: string;
-  requiredFields: string[];
+  descriptions:any;
+  slug: string;
+  htmlLayout: string;
+  previewUrl: string;
+  price:number;
+  isPremium:boolean;
+  sections:string[];
 }
 
 
@@ -14,3 +18,12 @@ interface TemplateDescriptions {
   targetUser: string;
   benefits: string[];
 }
+
+
+
+
+
+
+
+
+

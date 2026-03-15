@@ -38,7 +38,6 @@ export type TemplateMinAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
-  description: string | null
   previewUrl: string | null
   price: number | null
   isPremium: boolean | null
@@ -50,7 +49,6 @@ export type TemplateMaxAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
-  description: string | null
   previewUrl: string | null
   price: number | null
   isPremium: boolean | null
@@ -62,7 +60,7 @@ export type TemplateCountAggregateOutputType = {
   id: number
   name: number
   slug: number
-  description: number
+  descriptions: number
   previewUrl: number
   price: number
   isPremium: number
@@ -85,7 +83,6 @@ export type TemplateMinAggregateInputType = {
   id?: true
   name?: true
   slug?: true
-  description?: true
   previewUrl?: true
   price?: true
   isPremium?: true
@@ -97,7 +94,6 @@ export type TemplateMaxAggregateInputType = {
   id?: true
   name?: true
   slug?: true
-  description?: true
   previewUrl?: true
   price?: true
   isPremium?: true
@@ -109,7 +105,7 @@ export type TemplateCountAggregateInputType = {
   id?: true
   name?: true
   slug?: true
-  description?: true
+  descriptions?: true
   previewUrl?: true
   price?: true
   isPremium?: true
@@ -209,7 +205,7 @@ export type TemplateGroupByOutputType = {
   id: string
   name: string
   slug: string
-  description: string | null
+  descriptions: runtime.JsonValue
   previewUrl: string
   price: number
   isPremium: boolean
@@ -245,26 +241,28 @@ export type TemplateWhereInput = {
   id?: Prisma.StringFilter<"Template"> | string
   name?: Prisma.StringFilter<"Template"> | string
   slug?: Prisma.StringFilter<"Template"> | string
-  description?: Prisma.StringNullableFilter<"Template"> | string | null
+  descriptions?: Prisma.JsonFilter<"Template">
   previewUrl?: Prisma.StringFilter<"Template"> | string
   price?: Prisma.IntFilter<"Template"> | number
   isPremium?: Prisma.BoolFilter<"Template"> | boolean
   htmlLayout?: Prisma.StringFilter<"Template"> | string
   sections?: Prisma.JsonFilter<"Template">
   createdAt?: Prisma.DateTimeFilter<"Template"> | Date | string
+  resume?: Prisma.ResumeListRelationFilter
 }
 
 export type TemplateOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  descriptions?: Prisma.SortOrder
   previewUrl?: Prisma.SortOrder
   price?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
   htmlLayout?: Prisma.SortOrder
   sections?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  resume?: Prisma.ResumeOrderByRelationAggregateInput
 }
 
 export type TemplateWhereUniqueInput = Prisma.AtLeast<{
@@ -274,20 +272,21 @@ export type TemplateWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.TemplateWhereInput[]
   NOT?: Prisma.TemplateWhereInput | Prisma.TemplateWhereInput[]
   name?: Prisma.StringFilter<"Template"> | string
-  description?: Prisma.StringNullableFilter<"Template"> | string | null
+  descriptions?: Prisma.JsonFilter<"Template">
   previewUrl?: Prisma.StringFilter<"Template"> | string
   price?: Prisma.IntFilter<"Template"> | number
   isPremium?: Prisma.BoolFilter<"Template"> | boolean
   htmlLayout?: Prisma.StringFilter<"Template"> | string
   sections?: Prisma.JsonFilter<"Template">
   createdAt?: Prisma.DateTimeFilter<"Template"> | Date | string
+  resume?: Prisma.ResumeListRelationFilter
 }, "id" | "slug">
 
 export type TemplateOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  descriptions?: Prisma.SortOrder
   previewUrl?: Prisma.SortOrder
   price?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
@@ -308,7 +307,7 @@ export type TemplateScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Template"> | string
   name?: Prisma.StringWithAggregatesFilter<"Template"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Template"> | string
-  description?: Prisma.StringNullableWithAggregatesFilter<"Template"> | string | null
+  descriptions?: Prisma.JsonWithAggregatesFilter<"Template">
   previewUrl?: Prisma.StringWithAggregatesFilter<"Template"> | string
   price?: Prisma.IntWithAggregatesFilter<"Template"> | number
   isPremium?: Prisma.BoolWithAggregatesFilter<"Template"> | boolean
@@ -321,59 +320,63 @@ export type TemplateCreateInput = {
   id?: string
   name: string
   slug: string
-  description?: string | null
+  descriptions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   previewUrl: string
   price: number
   isPremium?: boolean
   htmlLayout: string
   sections: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  resume?: Prisma.ResumeCreateNestedManyWithoutTemplateInput
 }
 
 export type TemplateUncheckedCreateInput = {
   id?: string
   name: string
   slug: string
-  description?: string | null
+  descriptions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   previewUrl: string
   price: number
   isPremium?: boolean
   htmlLayout: string
   sections: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  resume?: Prisma.ResumeUncheckedCreateNestedManyWithoutTemplateInput
 }
 
 export type TemplateUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   previewUrl?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   htmlLayout?: Prisma.StringFieldUpdateOperationsInput | string
   sections?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resume?: Prisma.ResumeUpdateManyWithoutTemplateNestedInput
 }
 
 export type TemplateUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   previewUrl?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
   htmlLayout?: Prisma.StringFieldUpdateOperationsInput | string
   sections?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resume?: Prisma.ResumeUncheckedUpdateManyWithoutTemplateNestedInput
 }
 
 export type TemplateCreateManyInput = {
   id?: string
   name: string
   slug: string
-  description?: string | null
+  descriptions: Prisma.JsonNullValueInput | runtime.InputJsonValue
   previewUrl: string
   price: number
   isPremium?: boolean
@@ -386,7 +389,7 @@ export type TemplateUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   previewUrl?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -399,7 +402,7 @@ export type TemplateUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   previewUrl?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -408,11 +411,16 @@ export type TemplateUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type TemplateScalarRelationFilter = {
+  is?: Prisma.TemplateWhereInput
+  isNot?: Prisma.TemplateWhereInput
+}
+
 export type TemplateCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  description?: Prisma.SortOrder
+  descriptions?: Prisma.SortOrder
   previewUrl?: Prisma.SortOrder
   price?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
@@ -429,7 +437,6 @@ export type TemplateMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  description?: Prisma.SortOrder
   previewUrl?: Prisma.SortOrder
   price?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
@@ -441,7 +448,6 @@ export type TemplateMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  description?: Prisma.SortOrder
   previewUrl?: Prisma.SortOrder
   price?: Prisma.SortOrder
   isPremium?: Prisma.SortOrder
@@ -453,26 +459,139 @@ export type TemplateSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
 }
 
+export type TemplateCreateNestedOneWithoutResumeInput = {
+  create?: Prisma.XOR<Prisma.TemplateCreateWithoutResumeInput, Prisma.TemplateUncheckedCreateWithoutResumeInput>
+  connectOrCreate?: Prisma.TemplateCreateOrConnectWithoutResumeInput
+  connect?: Prisma.TemplateWhereUniqueInput
+}
+
+export type TemplateUpdateOneRequiredWithoutResumeNestedInput = {
+  create?: Prisma.XOR<Prisma.TemplateCreateWithoutResumeInput, Prisma.TemplateUncheckedCreateWithoutResumeInput>
+  connectOrCreate?: Prisma.TemplateCreateOrConnectWithoutResumeInput
+  upsert?: Prisma.TemplateUpsertWithoutResumeInput
+  connect?: Prisma.TemplateWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TemplateUpdateToOneWithWhereWithoutResumeInput, Prisma.TemplateUpdateWithoutResumeInput>, Prisma.TemplateUncheckedUpdateWithoutResumeInput>
+}
+
+export type TemplateCreateWithoutResumeInput = {
+  id?: string
+  name: string
+  slug: string
+  descriptions: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  previewUrl: string
+  price: number
+  isPremium?: boolean
+  htmlLayout: string
+  sections: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+}
+
+export type TemplateUncheckedCreateWithoutResumeInput = {
+  id?: string
+  name: string
+  slug: string
+  descriptions: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  previewUrl: string
+  price: number
+  isPremium?: boolean
+  htmlLayout: string
+  sections: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+}
+
+export type TemplateCreateOrConnectWithoutResumeInput = {
+  where: Prisma.TemplateWhereUniqueInput
+  create: Prisma.XOR<Prisma.TemplateCreateWithoutResumeInput, Prisma.TemplateUncheckedCreateWithoutResumeInput>
+}
+
+export type TemplateUpsertWithoutResumeInput = {
+  update: Prisma.XOR<Prisma.TemplateUpdateWithoutResumeInput, Prisma.TemplateUncheckedUpdateWithoutResumeInput>
+  create: Prisma.XOR<Prisma.TemplateCreateWithoutResumeInput, Prisma.TemplateUncheckedCreateWithoutResumeInput>
+  where?: Prisma.TemplateWhereInput
+}
+
+export type TemplateUpdateToOneWithWhereWithoutResumeInput = {
+  where?: Prisma.TemplateWhereInput
+  data: Prisma.XOR<Prisma.TemplateUpdateWithoutResumeInput, Prisma.TemplateUncheckedUpdateWithoutResumeInput>
+}
+
+export type TemplateUpdateWithoutResumeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  previewUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  htmlLayout?: Prisma.StringFieldUpdateOperationsInput | string
+  sections?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type TemplateUncheckedUpdateWithoutResumeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptions?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  previewUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  htmlLayout?: Prisma.StringFieldUpdateOperationsInput | string
+  sections?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type TemplateCountOutputType
+ */
+
+export type TemplateCountOutputType = {
+  resume: number
+}
+
+export type TemplateCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  resume?: boolean | TemplateCountOutputTypeCountResumeArgs
+}
+
+/**
+ * TemplateCountOutputType without action
+ */
+export type TemplateCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TemplateCountOutputType
+   */
+  select?: Prisma.TemplateCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * TemplateCountOutputType without action
+ */
+export type TemplateCountOutputTypeCountResumeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ResumeWhereInput
+}
 
 
 export type TemplateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   slug?: boolean
-  description?: boolean
+  descriptions?: boolean
   previewUrl?: boolean
   price?: boolean
   isPremium?: boolean
   htmlLayout?: boolean
   sections?: boolean
   createdAt?: boolean
+  resume?: boolean | Prisma.Template$resumeArgs<ExtArgs>
+  _count?: boolean | Prisma.TemplateCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["template"]>
 
 export type TemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   slug?: boolean
-  description?: boolean
+  descriptions?: boolean
   previewUrl?: boolean
   price?: boolean
   isPremium?: boolean
@@ -485,7 +604,7 @@ export type TemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   slug?: boolean
-  description?: boolean
+  descriptions?: boolean
   previewUrl?: boolean
   price?: boolean
   isPremium?: boolean
@@ -498,7 +617,7 @@ export type TemplateSelectScalar = {
   id?: boolean
   name?: boolean
   slug?: boolean
-  description?: boolean
+  descriptions?: boolean
   previewUrl?: boolean
   price?: boolean
   isPremium?: boolean
@@ -507,16 +626,24 @@ export type TemplateSelectScalar = {
   createdAt?: boolean
 }
 
-export type TemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "previewUrl" | "price" | "isPremium" | "htmlLayout" | "sections" | "createdAt", ExtArgs["result"]["template"]>
+export type TemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "descriptions" | "previewUrl" | "price" | "isPremium" | "htmlLayout" | "sections" | "createdAt", ExtArgs["result"]["template"]>
+export type TemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  resume?: boolean | Prisma.Template$resumeArgs<ExtArgs>
+  _count?: boolean | Prisma.TemplateCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type TemplateIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type TemplateIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $TemplatePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Template"
-  objects: {}
+  objects: {
+    resume: Prisma.$ResumePayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     slug: string
-    description: string | null
+    descriptions: runtime.JsonValue
     previewUrl: string
     price: number
     isPremium: boolean
@@ -917,6 +1044,7 @@ readonly fields: TemplateFieldRefs;
  */
 export interface Prisma__TemplateClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  resume<T extends Prisma.Template$resumeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Template$resumeArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResumePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -949,7 +1077,7 @@ export interface TemplateFieldRefs {
   readonly id: Prisma.FieldRef<"Template", 'String'>
   readonly name: Prisma.FieldRef<"Template", 'String'>
   readonly slug: Prisma.FieldRef<"Template", 'String'>
-  readonly description: Prisma.FieldRef<"Template", 'String'>
+  readonly descriptions: Prisma.FieldRef<"Template", 'Json'>
   readonly previewUrl: Prisma.FieldRef<"Template", 'String'>
   readonly price: Prisma.FieldRef<"Template", 'Int'>
   readonly isPremium: Prisma.FieldRef<"Template", 'Boolean'>
@@ -973,6 +1101,10 @@ export type TemplateFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.TemplateOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
+  /**
    * Filter, which Template to fetch.
    */
   where: Prisma.TemplateWhereUniqueInput
@@ -991,6 +1123,10 @@ export type TemplateFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.TemplateOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
+  /**
    * Filter, which Template to fetch.
    */
   where: Prisma.TemplateWhereUniqueInput
@@ -1008,6 +1144,10 @@ export type TemplateFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the Template
    */
   omit?: Prisma.TemplateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
   /**
    * Filter, which Template to fetch.
    */
@@ -1057,6 +1197,10 @@ export type TemplateFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.TemplateOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
+  /**
    * Filter, which Template to fetch.
    */
   where?: Prisma.TemplateWhereInput
@@ -1105,6 +1249,10 @@ export type TemplateFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.TemplateOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
+  /**
    * Filter, which Templates to fetch.
    */
   where?: Prisma.TemplateWhereInput
@@ -1132,6 +1280,11 @@ export type TemplateFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` Templates.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Templates.
+   */
   distinct?: Prisma.TemplateScalarFieldEnum | Prisma.TemplateScalarFieldEnum[]
 }
 
@@ -1147,6 +1300,10 @@ export type TemplateCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Template
    */
   omit?: Prisma.TemplateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
   /**
    * The data needed to create a Template.
    */
@@ -1195,6 +1352,10 @@ export type TemplateUpdateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Template
    */
   omit?: Prisma.TemplateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
   /**
    * The data needed to update a Template.
    */
@@ -1262,6 +1423,10 @@ export type TemplateUpsertArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.TemplateOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
+  /**
    * The filter to search for the Template to update in case it exists.
    */
   where: Prisma.TemplateWhereUniqueInput
@@ -1288,6 +1453,10 @@ export type TemplateDeleteArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.TemplateOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
+  /**
    * Filter which Template to delete.
    */
   where: Prisma.TemplateWhereUniqueInput
@@ -1308,6 +1477,30 @@ export type TemplateDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * Template.resume
+ */
+export type Template$resumeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Resume
+   */
+  select?: Prisma.ResumeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Resume
+   */
+  omit?: Prisma.ResumeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResumeInclude<ExtArgs> | null
+  where?: Prisma.ResumeWhereInput
+  orderBy?: Prisma.ResumeOrderByWithRelationInput | Prisma.ResumeOrderByWithRelationInput[]
+  cursor?: Prisma.ResumeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ResumeScalarFieldEnum | Prisma.ResumeScalarFieldEnum[]
+}
+
+/**
  * Template without action
  */
 export type TemplateDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1319,4 +1512,8 @@ export type TemplateDefaultArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Template
    */
   omit?: Prisma.TemplateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TemplateInclude<ExtArgs> | null
 }
