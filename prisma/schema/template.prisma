@@ -2,7 +2,7 @@ model Template {
   id          String   @id @default(uuid())
   name        String
   slug        String   @unique
-  description String?
+  descriptions Json
   previewUrl  String
   price       Int      // credit price
   isPremium   Boolean  @default(false)
