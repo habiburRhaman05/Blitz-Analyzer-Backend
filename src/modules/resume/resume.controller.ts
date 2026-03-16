@@ -8,7 +8,7 @@ const createResumeController = asyncHandler(async(req ,res)=>{
 
     const payload = {
          resumeData: req.body.resumeData,
-   
+    resumeId:req.body.resumeId,
     userId: res.locals.auth.userId,
     templateId: req.body.templateId
     }

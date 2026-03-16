@@ -37,10 +37,9 @@ const createResume = async (resumePayload:ICreateResumePayload) =>{
     const uploadedResume = await uploadResume(resumePdfBuffer)
 
        // save data in db
-    const newResume = await prisma.resume.create({
+    const newResume = await prisma.resume.update({
+      where:{id:resumePayload.resumeId},
       data:{
-         templateId:resumePayload.templateId,
-         userId:resumePayload.userId,
          resumeData:resumePayload.resumeData,
          resumeHtml:finalResumeHtml,
          resumeUrl: uploadedResume
