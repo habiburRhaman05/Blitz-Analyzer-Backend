@@ -9,4 +9,11 @@ resumeRouter.post(
   //add validation
   resumeControllers.createResumeController
 );
+
+resumeRouter.post(
+  "/initlize-resume",
+  authMiddleware,
+  //add validation
+  resumeControllers.initlizeResume
+);
 export default resumeRouter;

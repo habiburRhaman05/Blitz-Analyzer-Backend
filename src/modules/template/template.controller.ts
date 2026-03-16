@@ -11,6 +11,23 @@ const createTemplateController = asyncHandler(async(req ,res)=>{
     })
 })
 
+const getAllTemplates = asyncHandler(async(req ,res)=>{
+    const result = await templateServices.allTemplatesList();
+    return sendSuccess(res,{
+        data:result,message:"all template fetched",
+        
+    })
+})
+const getTemplateDetails = asyncHandler(async(req ,res)=>{
+    const result = await templateServices.getTemplateById(req.params.id as string);
+    return sendSuccess(res,{
+        data:result,message:"fetched template details",
+        
+    })
+})
+
 export const templateControllers = {
-createTemplateController
+createTemplateController,
+getAllTemplates,
+getTemplateDetails
 }

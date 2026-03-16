@@ -51,5 +51,37 @@ const createResume = async (resumePayload:ICreateResumePayload) =>{
     return newResume
 
 }
+const initResume = async (resumePayload:{userId:string,templateId:string}) =>{
 
-export const resumeServices = {createResume}
+   // check template exist or not
+
+   const template = await prisma.template.findUnique({
+      where:{id:resumePayload.templateId}
+   })
+   
+
+   if(!template) {
+      throw new AppError("Resume Template not found",status.NOT_FOUND)
+   }
+    
+   // check template is paid by user or not 
+
+       // save data in db
+    const newResume = await prisma.resume.create({
+      data:{
+         templateId:resumePayload.templateId,
+         userId:resumePayload.userId,
+         resumeData:{},
+         resumeHtml:template.htmlLayout,
+         resumeUrl: ""
+      }
+    })
+
+    // update wallet - reduce credit
+
+
+    return newResume
+
+}
+
+export const resumeServices = {createResume,initResume}
