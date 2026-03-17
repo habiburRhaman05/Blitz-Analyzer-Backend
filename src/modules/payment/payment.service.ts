@@ -56,7 +56,8 @@ import { stripe } from "../../config/stripe";
   };
 
   const invoiceBuffer = await generatePaymentInvoiceBuffer(invoicePayload);
-
+  console.log("invoice done");
+  
   const { secure_url } = await uploadPdfBufferToCloudinary(invoiceBuffer, "Invoice", {
     folder: "resume-saas/invoices",
     resource_type: "raw",

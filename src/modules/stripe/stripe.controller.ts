@@ -45,8 +45,11 @@ export const handleStripeWebhookController = asyncHandler(async (req, res) => {
     case "checkout.session.completed": {
     
       if (session.payment_status !== "paid") break;
+console.log("payment tstart");
 
       const { payment } = await paymentServices.handleStripePaymentSuccess(paymentId);
+      console.log("payemnt done");
+      
       const result = await paymentServices.generateAndSendInvoice(payment);
 
       console.log(`Processed payment ${paymentId}`,result);

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../lib/prisma";
 import { CookieUtils } from "../utils/cookie";
 import { sendError } from "../utils/apiResponse";
+import { CustomerProfile } from "../generated/prisma/client";
 
 export async function authMiddleware(
   req: Request,
@@ -28,7 +29,9 @@ export async function authMiddleware(
         expiresAt: { gt: new Date() }
       },
       
-      include: { user: true }
+      include: { user: {
+        include:{customerProfile:true}
+      } }
     });
     // console.log("session data",sessionData);
     // console.log("token",token);
@@ -66,8 +69,9 @@ export async function authMiddleware(
     res.locals.auth = {
       userId: user.id,
       role: user.role,
-      email: user.email
+      email: user.email,
     };
+    res.locals.user = user.customerProfile as CustomerProfile
 
     return next();
   } catch (error) {
