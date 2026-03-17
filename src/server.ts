@@ -9,24 +9,5 @@ import "./workers/emailWorker";
   await connectToDatabase();
   await startServer();
 
- const { user } = await auth.api.signUpEmail({
-      body:{
-             name:"Blitz Admin",
-      email:"admin@blitz-analyzer.com",
-      needPasswordChange:false,
-      password:"admin1234",
-        role:UserRole.ADMIN
-      }
-    })
-
-  await prisma.admin.create({
-    data:{
-       name:"Blitz Admin",
-      email:"admin@blitz-analyzer.com",
-      userId:user.id
-    }
-  })
-  console.log("created");
-  
     
 })();

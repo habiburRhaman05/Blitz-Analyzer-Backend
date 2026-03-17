@@ -20,7 +20,7 @@ const registerController = asyncHandler(async (req: Request, res: Response) => {
   return sendSuccess(res, {
     statusCode: 201,
     data: result,
-    message: " Patient Account Created Successfully"
+    message: " User Account Created Successfully"
   })
 });
 

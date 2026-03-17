@@ -6,12 +6,14 @@ import { applyMiddleware } from "./middleware";
 import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
 import indexRouter from "./routes/index.route";
+import stripeRouter from "./modules/stripe/stripe.route";
 const app: Express = express();
 
 
 
 app.set("trust proxy", 1);
 
+app.use("/api/v1/stripe",stripeRouter)
 applyMiddleware(app);
 app.use("/api/auth",toNodeHandler(auth))
 app.use("/api/v1",indexRouter)

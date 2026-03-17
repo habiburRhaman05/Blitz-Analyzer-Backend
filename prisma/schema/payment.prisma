@@ -10,9 +10,10 @@ stripeEventId      String?       @unique
   status        PaymentStatus
  paymentGatewayData Json?
   transactionId String?  // stripe / sslcommerz id
-  planId String @unique
+  planId String 
   plan PricingPlan @relation(fields: [planId],references: [id])
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
   @@map("payment")
 
 }

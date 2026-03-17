@@ -158,12 +158,13 @@ const getUserProfile = async (user: IRequestUser) => {
   const cacheKey = `profile:${user.userId}`;
 
   const cached = await redis.get(cacheKey);
-  if (cached) return JSON.parse(cached);
+  // if (cached) return JSON.parse(cached);
 
   const baseUser = await prisma.customerProfile.findUnique({
     where: { userId: user.userId },include:{
       user:true,
-      analysisHistory:true
+      analysisHistory:true,
+      wallet:true
     }
   });
 
