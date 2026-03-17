@@ -1,15 +1,20 @@
 model Payment {
   id            String   @id @default(uuid())
   userId        String
-  user          User     @relation(fields: [userId], references: [id])
-
+  user          CustomerProfile     @relation(fields: [userId], references: [id])
+stripeEventId      String?       @unique
   amount        Int
   currency      String   @default("USD")
-
+ invoiceUrl         String?
   paymentMethod PaymentMethod
   status        PaymentStatus
-
+ paymentGatewayData Json?
   transactionId String?  // stripe / sslcommerz id
-
+  planId String @unique
+  plan PricingPlan @relation(fields: [planId],references: [id])
   createdAt     DateTime @default(now())
+  @@map("payment")
+
 }
+
+

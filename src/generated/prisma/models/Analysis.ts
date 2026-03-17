@@ -198,7 +198,7 @@ export type AnalysisWhereInput = {
   jobData?: Prisma.JsonNullableFilter<"Analysis">
   result?: Prisma.JsonNullableFilter<"Analysis">
   createdAt?: Prisma.DateTimeFilter<"Analysis"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
 }
 
 export type AnalysisOrderByWithRelationInput = {
@@ -210,7 +210,7 @@ export type AnalysisOrderByWithRelationInput = {
   jobData?: Prisma.SortOrderInput | Prisma.SortOrder
   result?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
+  user?: Prisma.CustomerProfileOrderByWithRelationInput
 }
 
 export type AnalysisWhereUniqueInput = Prisma.AtLeast<{
@@ -225,7 +225,7 @@ export type AnalysisWhereUniqueInput = Prisma.AtLeast<{
   jobData?: Prisma.JsonNullableFilter<"Analysis">
   result?: Prisma.JsonNullableFilter<"Analysis">
   createdAt?: Prisma.DateTimeFilter<"Analysis"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
 }, "id" | "id">
 
 export type AnalysisOrderByWithAggregationInput = {
@@ -264,7 +264,7 @@ export type AnalysisCreateInput = {
   jobData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutAnalysisHistoryInput
+  user: Prisma.CustomerProfileCreateNestedOneWithoutAnalysisHistoryInput
 }
 
 export type AnalysisUncheckedCreateInput = {
@@ -286,7 +286,7 @@ export type AnalysisUpdateInput = {
   jobData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   result?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutAnalysisHistoryNestedInput
+  user?: Prisma.CustomerProfileUpdateOneRequiredWithoutAnalysisHistoryNestedInput
 }
 
 export type AnalysisUncheckedUpdateInput = {
@@ -371,16 +371,8 @@ export type AnalysisOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
 export type EnumAnalysisTypeFieldUpdateOperationsInput = {
   set?: $Enums.AnalysisType
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
 }
 
 export type AnalysisCreateNestedManyWithoutUserInput = {
@@ -536,7 +528,7 @@ export type AnalysisSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   jobData?: boolean
   result?: boolean
   createdAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["analysis"]>
 
 export type AnalysisSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -548,7 +540,7 @@ export type AnalysisSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   jobData?: boolean
   result?: boolean
   createdAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["analysis"]>
 
 export type AnalysisSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -560,7 +552,7 @@ export type AnalysisSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   jobData?: boolean
   result?: boolean
   createdAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["analysis"]>
 
 export type AnalysisSelectScalar = {
@@ -576,19 +568,19 @@ export type AnalysisSelectScalar = {
 
 export type AnalysisOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "analysisType" | "resumeText" | "resumeUrl" | "jobData" | "result" | "createdAt", ExtArgs["result"]["analysis"]>
 export type AnalysisInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }
 export type AnalysisIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }
 export type AnalysisIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }
 
 export type $AnalysisPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Analysis"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
+    user: Prisma.$CustomerProfilePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -993,7 +985,7 @@ readonly fields: AnalysisFieldRefs;
  */
 export interface Prisma__AnalysisClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.CustomerProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

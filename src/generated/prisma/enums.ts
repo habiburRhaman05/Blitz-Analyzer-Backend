@@ -50,3 +50,13 @@ export const PaymentMethod = {
 } as const
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
+
+
+export const CreditType = {
+  PURCHASE: 'PURCHASE',
+  USAGE: 'USAGE',
+  REFUND: 'REFUND',
+  ADMIN_ADJUST: 'ADMIN_ADJUST'
+} as const
+
+export type CreditType = (typeof CreditType)[keyof typeof CreditType]

@@ -39,3 +39,9 @@ enum PaymentMethod {
   SSLCOMMERZ
   PAYPAL
 }
+enum CreditType {
+  PURCHASE
+  USAGE
+  REFUND
+  ADMIN_ADJUST
+}

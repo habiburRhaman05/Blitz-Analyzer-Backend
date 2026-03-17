@@ -202,7 +202,7 @@ export type ResumeWhereInput = {
   resumeData?: Prisma.JsonFilter<"Resume">
   createdAt?: Prisma.DateTimeFilter<"Resume"> | Date | string
   resumeHtml?: Prisma.StringFilter<"Resume"> | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   template?: Prisma.XOR<Prisma.TemplateScalarRelationFilter, Prisma.TemplateWhereInput>
 }
 
@@ -215,7 +215,7 @@ export type ResumeOrderByWithRelationInput = {
   resumeData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   resumeHtml?: Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
+  user?: Prisma.CustomerProfileOrderByWithRelationInput
   template?: Prisma.TemplateOrderByWithRelationInput
 }
 
@@ -231,7 +231,7 @@ export type ResumeWhereUniqueInput = Prisma.AtLeast<{
   resumeData?: Prisma.JsonFilter<"Resume">
   createdAt?: Prisma.DateTimeFilter<"Resume"> | Date | string
   resumeHtml?: Prisma.StringFilter<"Resume"> | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
   template?: Prisma.XOR<Prisma.TemplateScalarRelationFilter, Prisma.TemplateWhereInput>
 }, "id">
 
@@ -270,7 +270,7 @@ export type ResumeCreateInput = {
   resumeData: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   resumeHtml: string
-  user: Prisma.UserCreateNestedOneWithoutSavedResumesInput
+  user: Prisma.CustomerProfileCreateNestedOneWithoutSavedResumesInput
   template: Prisma.TemplateCreateNestedOneWithoutResumeInput
 }
 
@@ -292,7 +292,7 @@ export type ResumeUpdateInput = {
   resumeData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resumeHtml?: Prisma.StringFieldUpdateOperationsInput | string
-  user?: Prisma.UserUpdateOneRequiredWithoutSavedResumesNestedInput
+  user?: Prisma.CustomerProfileUpdateOneRequiredWithoutSavedResumesNestedInput
   template?: Prisma.TemplateUpdateOneRequiredWithoutResumeNestedInput
 }
 
@@ -530,7 +530,7 @@ export type ResumeCreateWithoutTemplateInput = {
   resumeData: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   resumeHtml: string
-  user: Prisma.UserCreateNestedOneWithoutSavedResumesInput
+  user: Prisma.CustomerProfileCreateNestedOneWithoutSavedResumesInput
 }
 
 export type ResumeUncheckedCreateWithoutTemplateInput = {
@@ -626,7 +626,7 @@ export type ResumeUpdateWithoutTemplateInput = {
   resumeData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resumeHtml?: Prisma.StringFieldUpdateOperationsInput | string
-  user?: Prisma.UserUpdateOneRequiredWithoutSavedResumesNestedInput
+  user?: Prisma.CustomerProfileUpdateOneRequiredWithoutSavedResumesNestedInput
 }
 
 export type ResumeUncheckedUpdateWithoutTemplateInput = {
@@ -660,7 +660,7 @@ export type ResumeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   resumeData?: boolean
   createdAt?: boolean
   resumeHtml?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["resume"]>
 
@@ -673,7 +673,7 @@ export type ResumeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   resumeData?: boolean
   createdAt?: boolean
   resumeHtml?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["resume"]>
 
@@ -686,7 +686,7 @@ export type ResumeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   resumeData?: boolean
   createdAt?: boolean
   resumeHtml?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["resume"]>
 
@@ -703,22 +703,22 @@ export type ResumeSelectScalar = {
 
 export type ResumeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "resumeUrl" | "templateId" | "resumeData" | "createdAt" | "resumeHtml", ExtArgs["result"]["resume"]>
 export type ResumeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
 }
 export type ResumeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
 }
 export type ResumeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
 }
 
 export type $ResumePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Resume"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
+    user: Prisma.$CustomerProfilePayload<ExtArgs>
     template: Prisma.$TemplatePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1124,7 +1124,7 @@ readonly fields: ResumeFieldRefs;
  */
 export interface Prisma__ResumeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.CustomerProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   template<T extends Prisma.TemplateDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TemplateDefaultArgs<ExtArgs>>): Prisma.Prisma__TemplateClient<runtime.Types.Result.GetResult<Prisma.$TemplatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.

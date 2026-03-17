@@ -1,0 +1,19 @@
+model PricingPlan {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+
+  price     Int
+  currency  String   @default("USD")
+
+  credits   Int
+
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payments  Payment[]
+
+  @@map("pricing")
+}

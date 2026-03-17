@@ -12,6 +12,8 @@ model Template {
   sections    Json     // supported sections
   resume Resume[]
   createdAt   DateTime @default(now())
+  @@map("templates")
+
 }
 
 

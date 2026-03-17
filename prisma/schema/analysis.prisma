@@ -1,11 +1,13 @@
 model Analysis {
   id           String       @id @unique
   userId String
-  user User  @relation(fields: [userId],references: [id])
+  user CustomerProfile  @relation(fields: [userId],references: [id])
   analysisType AnalysisType
   resumeText   String
   resumeUrl    String
   jobData      Json?
   result       Json?
   createdAt    DateTime     @default(now())
+  @@map("analysis")
+
 } 

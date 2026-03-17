@@ -1,7 +1,33 @@
 model CreditWallet {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
-  balance   Int      @default(0)
+  id String @id @default(uuid())
+
+  userId String @unique
+  user   CustomerProfile   @relation(fields: [userId], references: [id])
+
+  balance Int @default(0)
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions CreditTransaction[]
+
+  @@map("credit_wallets")
+}
+
+
+model CreditTransaction {
+  id        String   @id @default(uuid())
+
+  walletId  String
+  wallet    CreditWallet @relation(fields: [walletId], references: [id])
+
+  amount    Int      // +100 / -5
+  type      CreditType
+  reason    String
+
+  referenceId String? // paymentId / resumeId
+
+  createdAt DateTime @default(now())
+
+  @@map("credit_transactions")
 }

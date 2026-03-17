@@ -30,7 +30,15 @@ const registerUser = async (payload: IRegisterPayload) => {
         role:UserRole.USER
       }
     })
-    return { user };
+
+    const customerProfile = await prisma.customerProfile.create({
+      data:{
+        email:user.email,
+        name:user.name,
+        userId:user.id
+      }
+    })
+    return { user,customerProfile };
   } catch (error) {
   
     throw error;
@@ -152,12 +160,10 @@ const getUserProfile = async (user: IRequestUser) => {
   const cached = await redis.get(cacheKey);
   if (cached) return JSON.parse(cached);
 
-  const baseUser = await prisma.user.findUnique({
-    where: { id: user.userId },include:{
-      wallet:true,
-      analysisHistory:true,
-      savedResumes:true,
-      payments:true
+  const baseUser = await prisma.customerProfile.findUnique({
+    where: { userId: user.userId },include:{
+      user:true,
+      analysisHistory:true
     }
   });
 

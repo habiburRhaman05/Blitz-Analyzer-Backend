@@ -1,22 +1,22 @@
 model User {
-  id                 String        @id @default(uuid())
+  id                 String     @id @default(uuid())
   name               String
   email              String
   image              String?
-  role               UserRole
+  role               UserRole   @default(USER)
   status             UserStatus
-  deletedAt          DateTime      @default(now())
+  deletedAt          DateTime   @default(now())
   needPasswordChange Boolean
-  isDeleted          Boolean       @default(false)
-  emailVerified      Boolean       @default(false)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  isDeleted          Boolean    @default(false)
+  emailVerified      Boolean    @default(false)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
   sessions           Session[]
   accounts           Account[]
-  wallet             CreditWallet?
-  payments           Payment[]
-  analysisHistory   Analysis[]
-  savedResumes Resume[]
+
+  admin              Admin?
+  customerProfile    CustomerProfile?
+
   @@unique([email])
   @@map("user")
 }

@@ -39,6 +39,7 @@ export type CreditWalletMinAggregateOutputType = {
   userId: string | null
   balance: number | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CreditWalletMaxAggregateOutputType = {
@@ -46,6 +47,7 @@ export type CreditWalletMaxAggregateOutputType = {
   userId: string | null
   balance: number | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CreditWalletCountAggregateOutputType = {
@@ -53,6 +55,7 @@ export type CreditWalletCountAggregateOutputType = {
   userId: number
   balance: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -70,6 +73,7 @@ export type CreditWalletMinAggregateInputType = {
   userId?: true
   balance?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CreditWalletMaxAggregateInputType = {
@@ -77,6 +81,7 @@ export type CreditWalletMaxAggregateInputType = {
   userId?: true
   balance?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CreditWalletCountAggregateInputType = {
@@ -84,6 +89,7 @@ export type CreditWalletCountAggregateInputType = {
   userId?: true
   balance?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -178,6 +184,7 @@ export type CreditWalletGroupByOutputType = {
   userId: string
   balance: number
   createdAt: Date
+  updatedAt: Date
   _count: CreditWalletCountAggregateOutputType | null
   _avg: CreditWalletAvgAggregateOutputType | null
   _sum: CreditWalletSumAggregateOutputType | null
@@ -208,7 +215,9 @@ export type CreditWalletWhereInput = {
   userId?: Prisma.StringFilter<"CreditWallet"> | string
   balance?: Prisma.IntFilter<"CreditWallet"> | number
   createdAt?: Prisma.DateTimeFilter<"CreditWallet"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  updatedAt?: Prisma.DateTimeFilter<"CreditWallet"> | Date | string
+  user?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
+  transactions?: Prisma.CreditTransactionListRelationFilter
 }
 
 export type CreditWalletOrderByWithRelationInput = {
@@ -216,7 +225,9 @@ export type CreditWalletOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   balance?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
+  updatedAt?: Prisma.SortOrder
+  user?: Prisma.CustomerProfileOrderByWithRelationInput
+  transactions?: Prisma.CreditTransactionOrderByRelationAggregateInput
 }
 
 export type CreditWalletWhereUniqueInput = Prisma.AtLeast<{
@@ -227,7 +238,9 @@ export type CreditWalletWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CreditWalletWhereInput | Prisma.CreditWalletWhereInput[]
   balance?: Prisma.IntFilter<"CreditWallet"> | number
   createdAt?: Prisma.DateTimeFilter<"CreditWallet"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  updatedAt?: Prisma.DateTimeFilter<"CreditWallet"> | Date | string
+  user?: Prisma.XOR<Prisma.CustomerProfileScalarRelationFilter, Prisma.CustomerProfileWhereInput>
+  transactions?: Prisma.CreditTransactionListRelationFilter
 }, "id" | "userId">
 
 export type CreditWalletOrderByWithAggregationInput = {
@@ -235,6 +248,7 @@ export type CreditWalletOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   balance?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CreditWalletCountOrderByAggregateInput
   _avg?: Prisma.CreditWalletAvgOrderByAggregateInput
   _max?: Prisma.CreditWalletMaxOrderByAggregateInput
@@ -250,13 +264,16 @@ export type CreditWalletScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"CreditWallet"> | string
   balance?: Prisma.IntWithAggregatesFilter<"CreditWallet"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CreditWallet"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CreditWallet"> | Date | string
 }
 
 export type CreditWalletCreateInput = {
   id?: string
   balance?: number
   createdAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutWalletInput
+  updatedAt?: Date | string
+  user: Prisma.CustomerProfileCreateNestedOneWithoutWalletInput
+  transactions?: Prisma.CreditTransactionCreateNestedManyWithoutWalletInput
 }
 
 export type CreditWalletUncheckedCreateInput = {
@@ -264,13 +281,17 @@ export type CreditWalletUncheckedCreateInput = {
   userId: string
   balance?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutWalletInput
 }
 
 export type CreditWalletUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutWalletNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.CustomerProfileUpdateOneRequiredWithoutWalletNestedInput
+  transactions?: Prisma.CreditTransactionUpdateManyWithoutWalletNestedInput
 }
 
 export type CreditWalletUncheckedUpdateInput = {
@@ -278,6 +299,8 @@ export type CreditWalletUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.CreditTransactionUncheckedUpdateManyWithoutWalletNestedInput
 }
 
 export type CreditWalletCreateManyInput = {
@@ -285,12 +308,14 @@ export type CreditWalletCreateManyInput = {
   userId: string
   balance?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CreditWalletUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CreditWalletUncheckedUpdateManyInput = {
@@ -298,11 +323,7 @@ export type CreditWalletUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type CreditWalletNullableScalarRelationFilter = {
-  is?: Prisma.CreditWalletWhereInput | null
-  isNot?: Prisma.CreditWalletWhereInput | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CreditWalletCountOrderByAggregateInput = {
@@ -310,6 +331,7 @@ export type CreditWalletCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   balance?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CreditWalletAvgOrderByAggregateInput = {
@@ -321,6 +343,7 @@ export type CreditWalletMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   balance?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CreditWalletMinOrderByAggregateInput = {
@@ -328,10 +351,43 @@ export type CreditWalletMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   balance?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CreditWalletSumOrderByAggregateInput = {
   balance?: Prisma.SortOrder
+}
+
+export type CreditWalletScalarRelationFilter = {
+  is?: Prisma.CreditWalletWhereInput
+  isNot?: Prisma.CreditWalletWhereInput
+}
+
+export type CreditWalletNullableScalarRelationFilter = {
+  is?: Prisma.CreditWalletWhereInput | null
+  isNot?: Prisma.CreditWalletWhereInput | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type CreditWalletCreateNestedOneWithoutTransactionsInput = {
+  create?: Prisma.XOR<Prisma.CreditWalletCreateWithoutTransactionsInput, Prisma.CreditWalletUncheckedCreateWithoutTransactionsInput>
+  connectOrCreate?: Prisma.CreditWalletCreateOrConnectWithoutTransactionsInput
+  connect?: Prisma.CreditWalletWhereUniqueInput
+}
+
+export type CreditWalletUpdateOneRequiredWithoutTransactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.CreditWalletCreateWithoutTransactionsInput, Prisma.CreditWalletUncheckedCreateWithoutTransactionsInput>
+  connectOrCreate?: Prisma.CreditWalletCreateOrConnectWithoutTransactionsInput
+  upsert?: Prisma.CreditWalletUpsertWithoutTransactionsInput
+  connect?: Prisma.CreditWalletWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CreditWalletUpdateToOneWithWhereWithoutTransactionsInput, Prisma.CreditWalletUpdateWithoutTransactionsInput>, Prisma.CreditWalletUncheckedUpdateWithoutTransactionsInput>
 }
 
 export type CreditWalletCreateNestedOneWithoutUserInput = {
@@ -366,24 +422,68 @@ export type CreditWalletUncheckedUpdateOneWithoutUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CreditWalletUpdateToOneWithWhereWithoutUserInput, Prisma.CreditWalletUpdateWithoutUserInput>, Prisma.CreditWalletUncheckedUpdateWithoutUserInput>
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type CreditWalletCreateWithoutTransactionsInput = {
+  id?: string
+  balance?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.CustomerProfileCreateNestedOneWithoutWalletInput
+}
+
+export type CreditWalletUncheckedCreateWithoutTransactionsInput = {
+  id?: string
+  userId: string
+  balance?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CreditWalletCreateOrConnectWithoutTransactionsInput = {
+  where: Prisma.CreditWalletWhereUniqueInput
+  create: Prisma.XOR<Prisma.CreditWalletCreateWithoutTransactionsInput, Prisma.CreditWalletUncheckedCreateWithoutTransactionsInput>
+}
+
+export type CreditWalletUpsertWithoutTransactionsInput = {
+  update: Prisma.XOR<Prisma.CreditWalletUpdateWithoutTransactionsInput, Prisma.CreditWalletUncheckedUpdateWithoutTransactionsInput>
+  create: Prisma.XOR<Prisma.CreditWalletCreateWithoutTransactionsInput, Prisma.CreditWalletUncheckedCreateWithoutTransactionsInput>
+  where?: Prisma.CreditWalletWhereInput
+}
+
+export type CreditWalletUpdateToOneWithWhereWithoutTransactionsInput = {
+  where?: Prisma.CreditWalletWhereInput
+  data: Prisma.XOR<Prisma.CreditWalletUpdateWithoutTransactionsInput, Prisma.CreditWalletUncheckedUpdateWithoutTransactionsInput>
+}
+
+export type CreditWalletUpdateWithoutTransactionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  balance?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.CustomerProfileUpdateOneRequiredWithoutWalletNestedInput
+}
+
+export type CreditWalletUncheckedUpdateWithoutTransactionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  balance?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CreditWalletCreateWithoutUserInput = {
   id?: string
   balance?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.CreditTransactionCreateNestedManyWithoutWalletInput
 }
 
 export type CreditWalletUncheckedCreateWithoutUserInput = {
   id?: string
   balance?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.CreditTransactionUncheckedCreateNestedManyWithoutWalletInput
 }
 
 export type CreditWalletCreateOrConnectWithoutUserInput = {
@@ -406,14 +506,47 @@ export type CreditWalletUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.CreditTransactionUpdateManyWithoutWalletNestedInput
 }
 
 export type CreditWalletUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.CreditTransactionUncheckedUpdateManyWithoutWalletNestedInput
 }
 
+
+/**
+ * Count Type CreditWalletCountOutputType
+ */
+
+export type CreditWalletCountOutputType = {
+  transactions: number
+}
+
+export type CreditWalletCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  transactions?: boolean | CreditWalletCountOutputTypeCountTransactionsArgs
+}
+
+/**
+ * CreditWalletCountOutputType without action
+ */
+export type CreditWalletCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CreditWalletCountOutputType
+   */
+  select?: Prisma.CreditWalletCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CreditWalletCountOutputType without action
+ */
+export type CreditWalletCountOutputTypeCountTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CreditTransactionWhereInput
+}
 
 
 export type CreditWalletSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -421,7 +554,10 @@ export type CreditWalletSelect<ExtArgs extends runtime.Types.Extensions.Internal
   userId?: boolean
   balance?: boolean
   createdAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  updatedAt?: boolean
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
+  transactions?: boolean | Prisma.CreditWallet$transactionsArgs<ExtArgs>
+  _count?: boolean | Prisma.CreditWalletCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["creditWallet"]>
 
 export type CreditWalletSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -429,7 +565,8 @@ export type CreditWalletSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   userId?: boolean
   balance?: boolean
   createdAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  updatedAt?: boolean
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["creditWallet"]>
 
 export type CreditWalletSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -437,7 +574,8 @@ export type CreditWalletSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   userId?: boolean
   balance?: boolean
   createdAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  updatedAt?: boolean
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["creditWallet"]>
 
 export type CreditWalletSelectScalar = {
@@ -445,29 +583,34 @@ export type CreditWalletSelectScalar = {
   userId?: boolean
   balance?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CreditWalletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "balance" | "createdAt", ExtArgs["result"]["creditWallet"]>
+export type CreditWalletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "balance" | "createdAt" | "updatedAt", ExtArgs["result"]["creditWallet"]>
 export type CreditWalletInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
+  transactions?: boolean | Prisma.CreditWallet$transactionsArgs<ExtArgs>
+  _count?: boolean | Prisma.CreditWalletCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CreditWalletIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }
 export type CreditWalletIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.CustomerProfileDefaultArgs<ExtArgs>
 }
 
 export type $CreditWalletPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CreditWallet"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
+    user: Prisma.$CustomerProfilePayload<ExtArgs>
+    transactions: Prisma.$CreditTransactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
     balance: number
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["creditWallet"]>
   composites: {}
 }
@@ -862,7 +1005,8 @@ readonly fields: CreditWalletFieldRefs;
  */
 export interface Prisma__CreditWalletClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.CustomerProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerProfileClient<runtime.Types.Result.GetResult<Prisma.$CustomerProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  transactions<T extends Prisma.CreditWallet$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CreditWallet$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CreditTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -896,6 +1040,7 @@ export interface CreditWalletFieldRefs {
   readonly userId: Prisma.FieldRef<"CreditWallet", 'String'>
   readonly balance: Prisma.FieldRef<"CreditWallet", 'Int'>
   readonly createdAt: Prisma.FieldRef<"CreditWallet", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CreditWallet", 'DateTime'>
 }
     
 
@@ -1294,6 +1439,30 @@ export type CreditWalletDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many CreditWallets to delete.
    */
   limit?: number
+}
+
+/**
+ * CreditWallet.transactions
+ */
+export type CreditWallet$transactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CreditTransaction
+   */
+  select?: Prisma.CreditTransactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CreditTransaction
+   */
+  omit?: Prisma.CreditTransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CreditTransactionInclude<ExtArgs> | null
+  where?: Prisma.CreditTransactionWhereInput
+  orderBy?: Prisma.CreditTransactionOrderByWithRelationInput | Prisma.CreditTransactionOrderByWithRelationInput[]
+  cursor?: Prisma.CreditTransactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CreditTransactionScalarFieldEnum | Prisma.CreditTransactionScalarFieldEnum[]
 }
 
 /**
