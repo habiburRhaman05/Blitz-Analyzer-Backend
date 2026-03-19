@@ -4,11 +4,18 @@ import { resumeControllers } from "./resume.controller";
 const resumeRouter: Router = Router();
 
 resumeRouter.post(
-  "/update-resume",
+  "/:resumeId/update-resume",
   authMiddleware,
   roleMiddleware(["USER"]),
   //add validation
   resumeControllers.updateResume
+);
+resumeRouter.delete(
+  "/:resumeId/delete-resume",
+  authMiddleware,
+  roleMiddleware(["USER"]),
+  //add validation
+  resumeControllers.deleteResume
 );
 
 resumeRouter.post(
@@ -26,5 +33,12 @@ resumeRouter.post(
 
   //add validation
   resumeControllers.generateResumeForDownload
+);
+resumeRouter.get(
+  "/",
+  authMiddleware,
+  roleMiddleware(["USER"]),
+  //add validation
+  resumeControllers.getAllResumeById
 );
 export default resumeRouter;

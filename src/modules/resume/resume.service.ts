@@ -136,4 +136,24 @@ const initResume = async ({
       }
    });
 };
-export const resumeServices = { generateResumeForDownload, initResume, saveChanges }
+
+const getAllResumeById = async (userId:string) =>{
+   const resumes = await prisma.resume.findMany({
+      where:{
+         userId
+      },
+     
+   })
+
+   return resumes
+}
+const deleteResume = async (resumeId:string) =>{
+   const resumes = await prisma.resume.delete({
+      where:{
+         id:resumeId
+      }
+   })
+
+   return resumes
+}
+export const resumeServices = { generateResumeForDownload, initResume, saveChanges,getAllResumeById,deleteResume }

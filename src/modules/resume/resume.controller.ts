@@ -8,9 +8,10 @@ import { resumeServices } from "./resume.service";
 const updateResume = asyncHandler(async(req ,res)=>{
 
 
+    const resumeId = req.params.resumeId as string
     const payload = {
          payload: req.body,
-    resumeId:req.body.resumeId,
+   resumeId,
 
     templateId: req.body.templateId
     }
@@ -36,10 +37,29 @@ const initlizeResume = asyncHandler(async(req ,res)=>{
         statusCode:status.CREATED
     })
 })
+const getAllResumeById = asyncHandler(async(req ,res)=>{
+
+    const payload = {
+    userId: res.locals.user.id,
+    }
+
+    const result = await resumeServices.getAllResumeById(payload.userId);
+    return sendSuccess(res,{
+        data:result,message:"fetch successfully your all resumes",
+        statusCode:200
+    })
+})
+const deleteResume = asyncHandler(async(req ,res)=>{
+   const resumeId = req.params.resumeId as string
+    const result = await resumeServices.deleteResume(resumeId);
+    return sendSuccess(res,{
+        data:result,message:"delete your resume successfully ",
+        statusCode:201
+    })
+})
 
 const generateResumeForDownload = asyncHandler(async(req ,res)=>{
 
-   
 
     const result = await resumeServices.generateResumeForDownload({
     userId: res.locals.user.id,
@@ -52,5 +72,5 @@ const generateResumeForDownload = asyncHandler(async(req ,res)=>{
 })
 
 export const resumeControllers = {
-updateResume,initlizeResume,generateResumeForDownload
+updateResume,initlizeResume,generateResumeForDownload,getAllResumeById,deleteResume
 }
