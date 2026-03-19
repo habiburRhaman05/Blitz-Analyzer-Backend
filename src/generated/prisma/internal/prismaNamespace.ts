@@ -1588,6 +1588,7 @@ export const ResumeScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   name: 'name',
+  isEdit: 'isEdit',
   resumeUrl: 'resumeUrl',
   templateId: 'templateId',
   resumeData: 'resumeData',

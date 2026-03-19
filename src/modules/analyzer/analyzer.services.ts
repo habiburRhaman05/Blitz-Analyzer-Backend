@@ -16,6 +16,8 @@ import {
   SaveResumePayload
 } from "./analyzer.interface"
 import { runLLM } from "./analyzer.utils"
+import { AppError } from "../../utils/AppError"
+import status from "http-status"
 
 
 const parseResumeService = async (
@@ -32,7 +34,7 @@ const parseResumeService = async (
 }
 
 
-const resumeATSScan = async (resumeText: string,id) => {
+const resumeATSScan = async (resumeText: string,id:string) => {
 
   const result = await runLLM(
     ATS_SYSTEM_PROMPT,
@@ -68,9 +70,17 @@ const saveAnalysisDetails = async (
   payload: SaveAnalysisPayload
 ) => {
 
-  await prisma.user.findUniqueOrThrow({
+  await prisma.customerProfile.findUniqueOrThrow({
     where: { id: userId }
   })
+
+  const analysisExist = await prisma.analysis.findUnique({
+    where:{id:payload.result.id}
+  })
+
+  if(analysisExist){
+    throw new AppError("Analysis Already Saved",status.BAD_REQUEST)
+  }
 
   return prisma.analysis.create({
     data: {
@@ -143,21 +153,34 @@ const saveResume = async (payload: SaveResumePayload) => {
 
   const { userId, name, resumeUrl } = payload
 
-  await prisma.user.findUniqueOrThrow({
-    where: { id: userId }
-  })
+  // await prisma.user.findUniqueOrThrow({
+  //   where: { id: userId }
+  // })
 
-  const resume = await prisma.resume.create({
-    data: {
-      userId,
-      name,
-      resumeUrl
-    }
-  })
+  // const resume = await prisma.resume.create({
+  //   data: {
+  //     userId,
+  //     name,
+  //     resumeUrl,
+  //     resumeData,
 
-  return resume
+  //   }
+  // })
+
+  // return resume
 }
 
+const getAllAnalysis = async (userId: string) => {
+
+  const analysis = await prisma.analysis.findMany({
+    where: { userId: userId }, // Changed 'id' back to 'userId'
+    orderBy: { createdAt: 'desc' } // Adding this prevents "jumping" records
+  });
+
+  return analysis
+ 
+  
+}
 export const analyzerServices = {
   parseResumeService,
   resumeJobMatcher,
@@ -165,5 +188,6 @@ export const analyzerServices = {
   saveAnalysisDetails,
   saveResume,
   applyImprovement,
-  makeAtsFriendly
+  makeAtsFriendly,
+  getAllAnalysis
 };

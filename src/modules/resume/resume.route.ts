@@ -4,11 +4,11 @@ import { resumeControllers } from "./resume.controller";
 const resumeRouter: Router = Router();
 
 resumeRouter.post(
-  "/create-resume",
+  "/update-resume",
   authMiddleware,
   roleMiddleware(["USER"]),
   //add validation
-  resumeControllers.createResumeController
+  resumeControllers.updateResume
 );
 
 resumeRouter.post(
@@ -18,5 +18,13 @@ resumeRouter.post(
 
   //add validation
   resumeControllers.initlizeResume
+);
+resumeRouter.post(
+  "/:id/generate-download",
+  authMiddleware,
+  roleMiddleware(["USER"]),
+
+  //add validation
+  resumeControllers.generateResumeForDownload
 );
 export default resumeRouter;

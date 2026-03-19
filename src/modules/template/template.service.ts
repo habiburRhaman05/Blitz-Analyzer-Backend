@@ -11,25 +11,19 @@ const createTemplate = async (templateData:ITemplateDataPayload) =>{
 const allTemplatesList = async () =>{
    const redisKey = "templates-list";
 
-   const cacheData = await redis.get(redisKey)
-   if(cacheData){
-  return JSON.parse(cacheData)
-   }
+
      const allTemplates = await prisma.template.findMany();
-     await redis.set(redisKey,JSON.stringify(allTemplates))
+
      return allTemplates
 }
 const getTemplateById = async (id:string) =>{
    const redisKey =  `template-detsail-${id}`
 
-   const cacheData = await redis.get(redisKey)
-//    if(cacheData){
-//   return JSON.parse(cacheData)
-//    }
+ 
      const templateDetails = await prisma.template.findUnique({
       where:{id}
      });
-     await redis.set(redisKey,JSON.stringify(templateDetails))
+   //   await redis.set(redisKey,JSON.stringify(templateDetails))
      return templateDetails
 }
 

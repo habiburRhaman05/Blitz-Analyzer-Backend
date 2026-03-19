@@ -6,7 +6,7 @@ const templateRouter: Router = Router();
 templateRouter.post(
   "/create",
   authMiddleware,
-    roleMiddleware(["USER"]),
+    roleMiddleware(["ADMIN"]),
   
   //add validation
   templateControllers.createTemplateController
@@ -14,7 +14,7 @@ templateRouter.post(
 templateRouter.get(
   "/",
   authMiddleware,
-    roleMiddleware(["USER"]),
+
 
   //add validation
   templateControllers.getAllTemplates
@@ -22,7 +22,6 @@ templateRouter.get(
 templateRouter.get(
   "/templateDetails/:id",
   authMiddleware,
-    roleMiddleware(["USER"]),
 
   //add validation
   templateControllers.getTemplateDetails

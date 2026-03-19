@@ -2,86 +2,138 @@
 import status from "http-status";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
-import { ICreateResumePayload } from "./resume.interface";
 import { generateResumePDF, mergeResume, uploadResume } from "./resume.utils";
 
-const createResume = async (resumePayload:ICreateResumePayload) =>{
+const generateResumeForDownload = async (
+   {userId,
+   resumeId,}:{userId:string,resumeId:string}
+) => {
 
-   // check template exist or not
+   const resume = await prisma.resume.findUnique({
+      where: { id: resumeId }
+   });
+
+   if (!resume) {
+      throw new AppError("Resume not found", status.NOT_FOUND);
+   }
+
+   // ✅ ownership check
+   if (resume.userId !== userId) {
+      throw new AppError("Unauthorized", status.UNAUTHORIZED);
+   }
+
+   // ✅ already generated & not edited
+   if (resume.resumeUrl && !resume.isEdit) {
+      return {
+         resumeUrl: resume.resumeUrl,
+         reused: true
+      };
+   }
+
+   // ✅ check credit
+   const wallet = await prisma.creditWallet.findUnique({
+      where: { userId }
+   });
+
+   if (!wallet || wallet.balance < 10) {
+      throw new AppError("Not enough credits", status.BAD_REQUEST);
+   }
+
+   // ✅ template check
+   const template = await prisma.template.findUnique({
+      where: { id: resume.templateId }
+   });
+
+   if (!template) {
+      throw new AppError("Template not found", status.NOT_FOUND);
+   }
+
+   // ✅ merge HTML
+   const finalHtml = mergeResume({
+      templateString: template.htmlLayout,
+      resumeData: resume.resumeData
+   });
+
+   // ✅ generate PDF
+   const pdfBuffer = await generateResumePDF(finalHtml);
+
+   // ✅ upload
+   const uploadedUrl = await uploadResume(pdfBuffer);
+
+   // ✅ transaction
+   await prisma.$transaction(async (tx) => {
+      await tx.resume.update({
+         where: { id: resumeId },
+         data: {
+            resumeUrl: uploadedUrl,
+            isEdit: false
+         }
+      });
+
+      await tx.creditWallet.update({
+         where: { userId },
+         data: {
+            balance: { decrement: 10 }
+         }
+      });
+   });
+
+   return {
+      resumeUrl: uploadedUrl,
+      reused: false
+   };
+};
+const saveChanges = async ({
+   resumeId,
+   templateId,
+   payload
+}: {
+   resumeId: string;
+   templateId: string;
+   payload: any;
+}) => {
 
    const template = await prisma.template.findUnique({
-      where:{id:resumePayload.templateId}
-   })
-   
+      where: { id: templateId }
+   });
 
-   if(!template) {
-      throw new AppError("Resume Template not found",status.NOT_FOUND)
+   if (!template) {
+      throw new AppError("Template not found", status.NOT_FOUND);
    }
-    
-   // check template is paid by user or not 
 
-
-         // merge resumeDataJson + htmllayoyt = final resume in html template
-     const finalResumeHtml = mergeResume({
-      templateString:template.htmlLayout,
-      resumeData:resumePayload.resumeData
-     })
- 
-
-
-    //Generate PDF - use background task leter 
-
-    const resumePdfBuffer = await generateResumePDF(finalResumeHtml);
-
-    //Upload PDF - use background task leter
-
-    const uploadedResume = await uploadResume(resumePdfBuffer)
-
-       // save data in db
-    const newResume = await prisma.resume.update({
-      where:{id:resumePayload.resumeId},
-      data:{
-         resumeData:resumePayload.resumeData,
-         resumeHtml:finalResumeHtml,
-         resumeUrl: uploadedResume
+   return prisma.resume.update({
+      where: { id: resumeId },
+      data: {
+         resumeData: payload,
+         isEdit: true
       }
-    })
-
-
-    return newResume
-
-}
-const initResume = async (resumePayload:{userId:string,templateId:string}) =>{
-
-   // check template exist or not
+   });
+};
+const initResume = async ({
+   userId,
+   templateId
+}: {
+   userId: string;
+   templateId: string;
+}) => {
 
    const template = await prisma.template.findUnique({
-      where:{id:resumePayload.templateId}
-   })
-   
+      where: { id: templateId }
+   });
 
-   if(!template) {
-      throw new AppError("Resume Template not found",status.NOT_FOUND)
+   if (!template) {
+      throw new AppError("Template not found", status.NOT_FOUND);
    }
-    
-   // check template is paid by user or not 
 
-       // save data in db
-    const newResume = await prisma.resume.create({
-      data:{
-         templateId:resumePayload.templateId,
-         userId:resumePayload.userId,
-         resumeData:{},
-         resumeHtml:template.htmlLayout,
-         resumeUrl: ""
+   return prisma.resume.create({
+      data: {
+         templateId,
+         userId,
+         resumeData: {},
+         resumeHtml: template.htmlLayout,
+         resumeUrl: "",
+         isEdit: true // dirty state
       }
-    })
-
-    // update wallet - reduce credit
-
-
-    return newResume
-
-}
-
-export const resumeServices = {createResume,initResume}
+   });
+};
+export const resumeServices = { generateResumeForDownload, initResume, saveChanges }

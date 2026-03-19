@@ -30,8 +30,9 @@ export interface ResumeJobMatcherPayload {
 
 export interface SaveAnalysisPayload {
   analysisType: "ATS_SCAN" | "JOB_MATCHER"
+  id: string
   resumeText: string
-  result: unknown
+  result: any
   jobData?: JobInfo
 }
 

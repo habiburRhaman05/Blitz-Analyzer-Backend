@@ -69,5 +69,12 @@ analyzerRouter.post(
 
   analyzerControllers.saveResumeController
 );
+analyzerRouter.get(
+  "/get-analysis-history",
+  authMiddleware,
+    roleMiddleware(["USER"]),
+
+  analyzerControllers.getAllAnalysisHistory
+);
 
 export default analyzerRouter;

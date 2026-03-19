@@ -3,6 +3,7 @@ model Resume {
   userId    String
   user CustomerProfile @relation(fields: [userId],references: [id])
   name      String @default(uuid())
+  isEdit Boolean @default(false)
   resumeUrl String?
   templateId String 
   template Template @relation(fields: [templateId],references: [id])

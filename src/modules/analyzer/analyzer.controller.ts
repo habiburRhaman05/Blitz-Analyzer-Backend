@@ -24,6 +24,7 @@ const parseResumeController = asyncHandler(async (req: Request, res: Response) =
 
   const { analysisType, jobData } = req.body;
 
+
   if (!analysisType) {
     return sendError(res, {
       message: "analysisType is required",
@@ -36,11 +37,12 @@ const parseResumeController = asyncHandler(async (req: Request, res: Response) =
 
   const analysisId = uuidv7();
 
+
   const parseDoc = {
     id: analysisId,
     parseText,
     analysisType,
-    jobInfo: analysisType === "job_match" ? JSON.parse(jobData) : null,
+    jobInfo: analysisType === "JOB_MATCHER" ? jobData : null,
     resumeFile: {
       filename: req.file.originalname,
       mimetype: req.file.mimetype,
@@ -59,7 +61,8 @@ const parseResumeController = asyncHandler(async (req: Request, res: Response) =
   return sendSuccess(res, {
     message: "Resume parsed successfully",
     data: {
-      analysisId
+      analysisId,
+      parseDoc
     },
     statusCode: status.CREATED
   });
@@ -75,6 +78,17 @@ const completeAnalysesResumeResult = asyncHandler(async (req: Request, res: Resp
 
   const redisKey = `resume:${id}`;
   const resultKey = `analysis-result:${id}`;
+
+  const analysis =await prisma.analysis.findUnique({
+    where:{id:id as string}
+  })
+
+    if (analysis) {
+    return sendSuccess(res, {
+      message: "Analysis fetched from db",
+      data: analysis.result
+    });
+  }
 
   // check if AI result already exists
   const cachedResult = await redis.get(resultKey);
@@ -96,6 +110,7 @@ const completeAnalysesResumeResult = asyncHandler(async (req: Request, res: Resp
   }
 
   const { parseText, jobInfo, analysisType } = JSON.parse(cacheData);
+
 
   let result;
 
@@ -133,7 +148,7 @@ const saveAnalysisController = asyncHandler(async (req: Request, res: Response) 
 
   const { id } = req.params;
 
-  const userId = res.locals.auth?.userId; // assuming auth middleware
+  const userId = res.locals.user?.id; // assuming auth middleware
 
   if (!userId) {
     return sendError(res, {
@@ -147,7 +162,15 @@ const saveAnalysisController = asyncHandler(async (req: Request, res: Response) 
 
   const resultCache = await redis.get(resultKey);
   const parseCache = await redis.get(parseKey);
-
+   const analysis = await prisma.analysis.findUnique({
+    where:{id:id as string}
+   })
+    if(analysis) {
+     return sendError(res, {
+      message: "Analysis already  saved",
+      statusCode: status.BAD_REQUEST
+    });
+   }
   if (!resultCache || !parseCache) {
     return sendError(res, {
       message: "Analysis data expired",
@@ -159,16 +182,9 @@ const saveAnalysisController = asyncHandler(async (req: Request, res: Response) 
   const parsed = JSON.parse(parseCache);
 console.log(result);
 
-   const analysis = await prisma.analysis.findUnique({
-    where:{id:result.id}
-   })
 
-   if(analysis) {
-     return sendError(res, {
-      message: "Analysis already  saved",
-      statusCode: status.BAD_REQUEST
-    });
-   }
+
+  
 
   const newAnalysis = await analyzerServices.saveAnalysisDetails(
     userId,
@@ -176,7 +192,8 @@ console.log(result);
       analysisType: parsed.analysisType,
       resumeText: parsed.parseText,
       jobData: parsed.jobInfo,
-      result
+      result,
+      id:result.id
     }
   );
 
@@ -278,7 +295,17 @@ const saveResumeController = asyncHandler(async (req: Request, res: Response) =>
 
 
 
-// EXPORT
+const getAllAnalysisHistory = asyncHandler(async(req,res)=>{
+  const userId = res.locals.user.id;
+  const page = req.query.page || 0;
+  const limit = req.query.limit || 0;
+  const result = await analyzerServices.getAllAnalysis(userId);
+  return sendSuccess(res,{
+    data:result,
+ 
+    message:"Fetch analysis history successfully"
+  })
+})
 
 export const analyzerControllers = {
   parseResumeController,
@@ -286,5 +313,6 @@ export const analyzerControllers = {
   saveAnalysisController,
   makeAtsFriendlyController,
   applyImprovementController,
-  saveResumeController
+  saveResumeController,
+  getAllAnalysisHistory
 };
