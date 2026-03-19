@@ -297,13 +297,22 @@ const saveResumeController = asyncHandler(async (req: Request, res: Response) =>
 
 const getAllAnalysisHistory = asyncHandler(async(req,res)=>{
   const userId = res.locals.user.id;
-  const page = req.query.page || 0;
-  const limit = req.query.limit || 0;
   const result = await analyzerServices.getAllAnalysis(userId);
   return sendSuccess(res,{
     data:result,
  
     message:"Fetch analysis history successfully"
+  })
+})
+const deleteAnalysis = asyncHandler(async(req,res)=>{
+
+  const analysisId = req.params.id as string
+  console.log("andid",analysisId);
+  
+  const result = await analyzerServices.deleteAnalysis(analysisId);
+  return sendSuccess(res,{
+    data:result,
+    message:"delete analysis history successfully"
   })
 })
 
@@ -314,5 +323,6 @@ export const analyzerControllers = {
   makeAtsFriendlyController,
   applyImprovementController,
   saveResumeController,
-  getAllAnalysisHistory
+  getAllAnalysisHistory,
+  deleteAnalysis
 };

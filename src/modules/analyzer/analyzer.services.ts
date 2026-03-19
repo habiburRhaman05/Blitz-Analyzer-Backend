@@ -181,6 +181,12 @@ const getAllAnalysis = async (userId: string) => {
  
   
 }
+const deleteAnalysis = async (analysisId: string) => {
+  const analysis = await prisma.analysis.delete({
+    where: { id: analysisId }
+  });
+  return analysis
+}
 export const analyzerServices = {
   parseResumeService,
   resumeJobMatcher,
@@ -189,5 +195,6 @@ export const analyzerServices = {
   saveResume,
   applyImprovement,
   makeAtsFriendly,
-  getAllAnalysis
+  getAllAnalysis,
+  deleteAnalysis
 };

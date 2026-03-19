@@ -19,7 +19,6 @@ analyzerRouter.post(
   "/parse-resume",
   authMiddleware,
     roleMiddleware(["USER"]),
-  
   upload.single("resume"),
   analyzerControllers.parseResumeController
 );
@@ -29,7 +28,6 @@ analyzerRouter.post(
   "/analysis/:id",
   authMiddleware,
     roleMiddleware(["USER"]),
-
   analyzerControllers.completeAnalysesResumeResult
 );
 
@@ -38,7 +36,6 @@ analyzerRouter.post(
   "/analysis/save/:id",
   authMiddleware,
     roleMiddleware(["USER"]),
-
   analyzerControllers.saveAnalysisController
 );
 
@@ -47,7 +44,6 @@ analyzerRouter.post(
   "/resume/improve",
   authMiddleware,
     roleMiddleware(["USER"]),
-
   analyzerControllers.applyImprovementController
 );
 
@@ -57,7 +53,6 @@ analyzerRouter.post(
   "/resume/ats-optimize",
   authMiddleware,
     roleMiddleware(["USER"]),
-
   analyzerControllers.makeAtsFriendlyController
 );
 
@@ -66,15 +61,19 @@ analyzerRouter.post(
   "/resume/save",
   authMiddleware,
     roleMiddleware(["USER"]),
-
   analyzerControllers.saveResumeController
 );
 analyzerRouter.get(
   "/get-analysis-history",
   authMiddleware,
     roleMiddleware(["USER"]),
-
   analyzerControllers.getAllAnalysisHistory
+);
+analyzerRouter.delete(
+  "/analysis/delete/:id",
+  authMiddleware,
+    roleMiddleware(["USER"]),
+  analyzerControllers.deleteAnalysis
 );
 
 export default analyzerRouter;
