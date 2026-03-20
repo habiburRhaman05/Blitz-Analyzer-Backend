@@ -10,8 +10,6 @@ import {
 } from "./analyzer.prompt"
 
 import {
-  ImprovePayload,
-  ResumeJobMatcherPayload,
   SaveAnalysisPayload,
 } from "./analyzer.interface"
 import { runLLM } from "./analyzer.utils"
@@ -96,7 +94,7 @@ const makeAtsFriendly = async (
 
   const applyImprovement = async (
   prevResumeText: string,
-  payload: ImprovePayload
+  payload: any
 ) => {
 
   const { title, content } = payload
@@ -150,10 +148,10 @@ const deleteAnalysis = async (analysisId: string) => {
 }
 export const analyzerServices = {
   parseResumeService,
-  resumeJobMatcher,
+
   resumeATSScan,
   saveAnalysisDetails,
-  saveResume,
+
   applyImprovement,
   makeAtsFriendly,
   getAllAnalysis,

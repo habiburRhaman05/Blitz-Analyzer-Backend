@@ -1,32 +1,46 @@
 import { AppError } from "./AppError";
 import { mailTransport } from "./mailTransporter";
 
-type MailType = 'verify-email' | 'reset-email' | 'prescription-email' | "payment-succces-email";
+/**
+ * Supported Mail Types (Strict)
+ */
+export type MailType =
+  | "verify-email"
+  | "reset-email"
+  | "payment-success-email";
 
-interface MailData {
-    email: string;
-    subject: string;
-    type: MailType;
-    html:any
+/**
+ * Input Contract
+ */
+export interface SendMailOptions {
+  to: string;
+  subject: string;
+  html: string;
+  type: MailType;
 }
 
-async function sendMail(data: MailData) {
-    console.log("sending email...");
-    
-    const {subject,email,html,type} = data
-    try {
-        const mailOptions = {
-            from: '"PH-Health Care" <noreply@phhealth.com>',
-            to: email,
-            subject: subject,
-            html: html || `no html provided by backend
-            `
-        };
-        return await mailTransport.sendMail(mailOptions);
-    } catch (error) {
-        console.error("Mail Error:", error);
-        throw new AppError("Failed to send mail", 400);
+/**
+ * Core Mail Sender (Single Responsibility)
+ */
+export const sendMail = async ({
+  to,
+  subject,
+  html,
+}: SendMailOptions) => {
+  try {
+    if (!to) {
+      throw new AppError("Recipient email is required", 400);
     }
-}
-
-export const mailServices = { sendMail };
+    const mailOptions = {
+      from: `"Blitz Analyzer" <noreply@blitzanalyzer.com>`,
+      to,
+      subject,
+      html: html || "<p>No content provided</p>",
+    };
+    const result = await mailTransport.sendMail(mailOptions);
+    return result;
+  } catch (error) {
+    console.error("❌ Mail Error:", error);
+    throw new AppError("Failed to send email", 500);
+  }
+};

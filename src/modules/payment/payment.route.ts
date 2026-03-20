@@ -8,7 +8,7 @@ const paymentRouter = Router();
 
 // ✅ Buy credits (User)
 paymentRouter.post(
-  "/buy",
+  "/buy-credit",
   authMiddleware, 
   roleMiddleware(["USER"]),
   validateRequest(buyCreditSchema),

@@ -1,11 +1,12 @@
-import { prisma } from "../../lib/prisma";
-import { PaymentStatus } from "../../generated/prisma/enums";
-import { AppError } from "../../utils/AppError";
-import { generatePaymentInvoiceBuffer } from "./payment.utils";
 import { v7 as uuidv7 } from "uuid";
-import { uploadPdfBufferToCloudinary } from "../media/media.service";
-import { emailQueue } from "../../queue/emailQueue";
 import { stripe } from "../../config/stripe";
+import { PaymentStatus } from "../../generated/prisma/enums";
+import { prisma } from "../../lib/prisma";
+import { AppError } from "../../utils/AppError";
+import { uploadPdfBufferToCloudinary } from "../media/media.service";
+import { generatePaymentInvoiceBuffer } from "./payment.utils";
+import { emailQueue } from "../../queue/emailQueue";
+import { envConfig } from "../../config/env";
 
  const handleStripePaymentSuccess = async (paymentId: string) => {
   const payment = await prisma.payment.findUnique({
@@ -34,6 +35,12 @@ import { stripe } from "../../config/stripe";
 
     return { payment: updatedPayment, wallet };
   });
+
+
+  // generate invoice
+
+  const invoiceBuffer = await generateAndSendInvoice(payment)
+
 
   return result;
 };
@@ -67,8 +74,30 @@ import { stripe } from "../../config/stripe";
   // Save invoice URL
   await prisma.payment.update({ where: { id: payment.id }, data: { invoiceUrl: secure_url } });
 
-  // Queue email
-  // await emailQueue.add("payment-success", { ...invoicePayload, invoiceUrl: secure_url });
+await emailQueue.add(
+  "payment-success",
+  {
+    user: {
+      name: invoicePayload.userName,
+      email: invoicePayload.userEmail,
+    },
+    transactionId: payment.id,
+    amount: invoicePayload.amount,
+    credit:payment.plan.credits,
+    invoiceUrl: secure_url,
+    dashboardUrl:`${envConfig.CLIENT_URL}/dashboard`
+  },
+  {
+    attempts: 3, // retry if failed
+    backoff: {
+      type: "exponential",
+      delay: 2000,
+    },
+    removeOnComplete: true,
+    removeOnFail: false,
+    jobId: `payment-${payment.id}`, // 🔥 prevents duplicate emails
+  }
+);
 
   return {secure_url};
 };
@@ -89,7 +118,7 @@ import { stripe } from "../../config/stripe";
   }
 
   const customer = await prisma.customerProfile.findUnique({
-    where:{userId:userId}
+    where:{id:userId}
   })
 
   if(!customer){
@@ -126,7 +155,7 @@ console.log("planid",planId);
     mode: "payment",
     customer_email: customer.email, // optional: fetch user email if available
     success_url: `${successUrl}?paymentId=${payment.id}`,
-    cancel_url: cancelUrl,
+    cancel_url: `${cancelUrl}?paymentId=${payment.id}`,
     metadata: {
       paymentId: payment.id,
       userId,

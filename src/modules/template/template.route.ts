@@ -14,8 +14,6 @@ templateRouter.post(
 templateRouter.get(
   "/",
   authMiddleware,
-
-
   //add validation
   templateControllers.getAllTemplates
 );

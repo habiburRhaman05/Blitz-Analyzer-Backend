@@ -49,10 +49,6 @@ console.log("payment tstart");
 
       const { payment } = await paymentServices.handleStripePaymentSuccess(paymentId);
       console.log("payemnt done");
-      
-      const result = await paymentServices.generateAndSendInvoice(payment);
-
-      console.log(`Processed payment ${paymentId}`,result);
       break;
     }
 

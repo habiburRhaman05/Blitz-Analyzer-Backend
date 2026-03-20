@@ -7,6 +7,8 @@ import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
 import indexRouter from "./routes/index.route";
 import stripeRouter from "./modules/stripe/stripe.route";
+import path from "path";
+import { cwd } from "process";
 const app: Express = express();
 
 
@@ -17,6 +19,7 @@ app.use("/api/v1/stripe",stripeRouter)
 applyMiddleware(app);
 app.use("/api/auth",toNodeHandler(auth))
 app.use("/api/v1",indexRouter)
+app.set('views',path.join(`${cwd()}/src/templates`));
 
 
 app.get("/health",async (_req, res) =>{

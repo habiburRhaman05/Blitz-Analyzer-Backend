@@ -9,7 +9,7 @@ import { buyCreditSchema, stripeWebhookSchema } from "./payment.validation";
 export const buyCredits = asyncHandler(async (req: Request, res: Response) => {
   const { planId, successUrl, cancelUrl } = req.body;
 
-  const userId = res.locals.auth.userId; // assuming auth middleware sets req.user
+  const userId = res.locals.user.id; // assuming auth middleware sets req.user
 
   const { checkoutUrl, paymentId } = await paymentServices.createCreditPurchaseSession(
     userId,
