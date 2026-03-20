@@ -2,6 +2,8 @@ import { Router } from "express";
 import multer from "multer";
 import { authMiddleware, roleMiddleware } from "../../middleware/auth-middlewares";
 import { analyzerControllers } from "./analyzer.controller";
+import { validateRequest } from "../../middleware/validateRequest";
+import { completeAnalysisSchema, parseResumeSchema, saveAnalysisSchema } from "./analyzer.validation";
 
 const analyzerRouter: Router = Router();
 
@@ -20,6 +22,7 @@ analyzerRouter.post(
   authMiddleware,
     roleMiddleware(["USER"]),
   upload.single("resume"),
+  validateRequest(parseResumeSchema),
   analyzerControllers.parseResumeController
 );
 
@@ -28,6 +31,7 @@ analyzerRouter.post(
   "/analysis/:id",
   authMiddleware,
     roleMiddleware(["USER"]),
+ validateRequest(completeAnalysisSchema),
   analyzerControllers.completeAnalysesResumeResult
 );
 
@@ -36,6 +40,7 @@ analyzerRouter.post(
   "/analysis/save/:id",
   authMiddleware,
     roleMiddleware(["USER"]),
+    validateRequest(saveAnalysisSchema),
   analyzerControllers.saveAnalysisController
 );
 
@@ -57,12 +62,12 @@ analyzerRouter.post(
 );
 
 
-analyzerRouter.post(
-  "/resume/save",
-  authMiddleware,
-    roleMiddleware(["USER"]),
-  analyzerControllers.saveResumeController
-);
+// analyzerRouter.post(
+//   "/resume/save",
+//   authMiddleware,
+//     roleMiddleware(["USER"]),
+//   analyzerControllers.saveResumeController
+// );
 analyzerRouter.get(
   "/get-analysis-history",
   authMiddleware,

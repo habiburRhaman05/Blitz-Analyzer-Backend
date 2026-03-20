@@ -13,7 +13,6 @@ import {
   ImprovePayload,
   ResumeJobMatcherPayload,
   SaveAnalysisPayload,
-  SaveResumePayload
 } from "./analyzer.interface"
 import { runLLM } from "./analyzer.utils"
 import { AppError } from "../../utils/AppError"
@@ -48,21 +47,7 @@ const resumeATSScan = async (resumeText: string,id:string) => {
 }
 
 
-const resumeJobMatcher = async ({
-  resumeText,
-  jobInfo,id
-}: ResumeJobMatcherPayload) => {
 
-  const result = await runLLM(
-    JOB_MATCH_PROMPT(jobInfo),
-    resumeText
-  )
-
-  return {
-    id,
-    ...result
-  }
-}
 
 
 const saveAnalysisDetails = async (
@@ -88,11 +73,6 @@ const saveAnalysisDetails = async (
    analysisType: payload.analysisType,
       resumeText: payload.resumeText,
       result: payload.result || {},
-      jobData:{
-        title:payload.jobData?.title,
-        description:payload.jobData?.description,
-        requirements:payload.jobData?.requirements,
-      },
       resumeUrl: "dummy-url",
       userId
     }
@@ -149,26 +129,7 @@ ${prevResumeText}
   return result
 }
 
-const saveResume = async (payload: SaveResumePayload) => {
 
-  const { userId, name, resumeUrl } = payload
-
-  // await prisma.user.findUniqueOrThrow({
-  //   where: { id: userId }
-  // })
-
-  // const resume = await prisma.resume.create({
-  //   data: {
-  //     userId,
-  //     name,
-  //     resumeUrl,
-  //     resumeData,
-
-  //   }
-  // })
-
-  // return resume
-}
 
 const getAllAnalysis = async (userId: string) => {
 

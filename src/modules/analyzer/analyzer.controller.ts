@@ -22,7 +22,7 @@ const parseResumeController = asyncHandler(async (req: Request, res: Response) =
     });
   }
 
-  const { analysisType, jobData } = req.body;
+  const { analysisType } = req.body;
 
 
   if (!analysisType) {
@@ -42,7 +42,6 @@ const parseResumeController = asyncHandler(async (req: Request, res: Response) =
     id: analysisId,
     parseText,
     analysisType,
-    jobInfo: analysisType === "JOB_MATCHER" ? jobData : null,
     resumeFile: {
       filename: req.file.originalname,
       mimetype: req.file.mimetype,
@@ -76,6 +75,7 @@ const completeAnalysesResumeResult = asyncHandler(async (req: Request, res: Resp
 
   const { id } = req.params;
 
+  
   const redisKey = `resume:${id}`;
   const resultKey = `analysis-result:${id}`;
 
@@ -109,21 +109,12 @@ const completeAnalysesResumeResult = asyncHandler(async (req: Request, res: Resp
     });
   }
 
-  const { parseText, jobInfo, analysisType } = JSON.parse(cacheData);
-
+  const { parseText, analysisType } = JSON.parse(cacheData);
 
   let result;
 
   if (analysisType === AnalysisType.ATS_SCAN) {
     result = await analyzerServices.resumeATSScan(parseText,id as string);
-  }
-
-  if (analysisType ===  AnalysisType.JOB_MATCHER) {
-    result = await analyzerServices.resumeJobMatcher({
-      resumeText: parseText,
-      jobInfo,
-      id:id as string
-    });
   }
 
   // cache AI result
@@ -133,7 +124,6 @@ const completeAnalysesResumeResult = asyncHandler(async (req: Request, res: Resp
     "EX",
     600
   );
-
   return sendSuccess(res, {
     message: "Resume analysis completed",
     data: result
