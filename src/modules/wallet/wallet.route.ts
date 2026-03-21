@@ -11,6 +11,13 @@ router.get(
   roleMiddleware(["USER"]),
   walletControllers.getMyWallet
 );
+// ✅ Claim Free Credit  
+router.post(
+  "/claim-free-credit",
+  authMiddleware,
+  roleMiddleware(["USER"]),
+  walletControllers.claimFreeCredit
+);
 
 // ✅ Get wallet transactions
 router.get(

@@ -88,10 +88,11 @@ export function roleMiddleware(allowedRoles: ("ADMIN" | "USER")[]) {
     const auth = res.locals.auth;
 
     if (!auth || !allowedRoles.includes(auth.role)) {
-      return res.status(403).json({ 
-        success: false,
-        error: "Forbidden: You do not have permission to perform this action" 
-      });
+      return sendError(res,{
+          errors: true,
+        message: "Forbidden: You do not have permission to perform this action", 
+      statusCode:403
+      })
     }
 
     next();

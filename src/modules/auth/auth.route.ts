@@ -4,7 +4,7 @@ import { Router } from "express";
 import { validateRequest } from "../../middleware/validateRequest";
 import { authControllers } from "./auth.controller";
 import { authSchemas } from "./auth.schema";
-import { authMiddleware } from "../../middleware/auth-middlewares";
+import { authMiddleware, roleMiddleware } from "../../middleware/auth-middlewares";
 
 const router: Router = Router();
 
@@ -22,26 +22,27 @@ router.post(
 router.get(
   "/me",
 authMiddleware,
+ roleMiddleware(["USER","ADMIN"]),
   authControllers.getUserProfileController
 );
 router.get(
   "/logout",
 authMiddleware,
+ roleMiddleware(["USER","ADMIN"]),
   authControllers.logoutUserController
 );
 router.post(
   "/refresh-token",
-// authMiddleware,
   authControllers.getRefreshTokenController
 );
 router.post(
   "/request-reset-password",
-
   authControllers.requestPasswordResetController
 );
 router.put(
   "/change-password",
 authMiddleware,
+ roleMiddleware(["USER","ADMIN"]),
 validateRequest(authSchemas.changePasswordSchema),
   authControllers.changePasswordController
 );
@@ -52,6 +53,23 @@ router.put(
 router.get(
   "/verify-email",
   authControllers.verifyEmail
+);
+router.get(
+  "/verify-email",
+  authControllers.verifyEmail
+);
+router.put(
+  "/change-avatar",
+  authMiddleware,
+ roleMiddleware(["USER","ADMIN"]),
+  authControllers.changeProfileAvatar
+);
+router.put(
+  "/update-profile",
+  authMiddleware,
+
+ roleMiddleware(["USER","ADMIN"]),
+  authControllers.updateProfileInfo
 );
 
 export default router;

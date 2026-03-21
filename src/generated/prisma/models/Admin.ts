@@ -28,7 +28,9 @@ export type AdminMinAggregateOutputType = {
   id: string | null
   name: string | null
   email: string | null
-  image: string | null
+  profileAvatar: string | null
+  loaction: string | null
+  contactNumber: string | null
   emailVerified: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -39,7 +41,9 @@ export type AdminMaxAggregateOutputType = {
   id: string | null
   name: string | null
   email: string | null
-  image: string | null
+  profileAvatar: string | null
+  loaction: string | null
+  contactNumber: string | null
   emailVerified: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -50,7 +54,9 @@ export type AdminCountAggregateOutputType = {
   id: number
   name: number
   email: number
-  image: number
+  profileAvatar: number
+  loaction: number
+  contactNumber: number
   emailVerified: number
   createdAt: number
   updatedAt: number
@@ -63,7 +69,9 @@ export type AdminMinAggregateInputType = {
   id?: true
   name?: true
   email?: true
-  image?: true
+  profileAvatar?: true
+  loaction?: true
+  contactNumber?: true
   emailVerified?: true
   createdAt?: true
   updatedAt?: true
@@ -74,7 +82,9 @@ export type AdminMaxAggregateInputType = {
   id?: true
   name?: true
   email?: true
-  image?: true
+  profileAvatar?: true
+  loaction?: true
+  contactNumber?: true
   emailVerified?: true
   createdAt?: true
   updatedAt?: true
@@ -85,7 +95,9 @@ export type AdminCountAggregateInputType = {
   id?: true
   name?: true
   email?: true
-  image?: true
+  profileAvatar?: true
+  loaction?: true
+  contactNumber?: true
   emailVerified?: true
   createdAt?: true
   updatedAt?: true
@@ -169,7 +181,9 @@ export type AdminGroupByOutputType = {
   id: string
   name: string
   email: string
-  image: string | null
+  profileAvatar: string | null
+  loaction: string | null
+  contactNumber: string | null
   emailVerified: boolean
   createdAt: Date
   updatedAt: Date
@@ -201,7 +215,9 @@ export type AdminWhereInput = {
   id?: Prisma.StringFilter<"Admin"> | string
   name?: Prisma.StringFilter<"Admin"> | string
   email?: Prisma.StringFilter<"Admin"> | string
-  image?: Prisma.StringNullableFilter<"Admin"> | string | null
+  profileAvatar?: Prisma.StringNullableFilter<"Admin"> | string | null
+  loaction?: Prisma.StringNullableFilter<"Admin"> | string | null
+  contactNumber?: Prisma.StringNullableFilter<"Admin"> | string | null
   emailVerified?: Prisma.BoolFilter<"Admin"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Admin"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Admin"> | Date | string
@@ -213,7 +229,9 @@ export type AdminOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  image?: Prisma.SortOrderInput | Prisma.SortOrder
+  profileAvatar?: Prisma.SortOrderInput | Prisma.SortOrder
+  loaction?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -229,7 +247,9 @@ export type AdminWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AdminWhereInput[]
   NOT?: Prisma.AdminWhereInput | Prisma.AdminWhereInput[]
   name?: Prisma.StringFilter<"Admin"> | string
-  image?: Prisma.StringNullableFilter<"Admin"> | string | null
+  profileAvatar?: Prisma.StringNullableFilter<"Admin"> | string | null
+  loaction?: Prisma.StringNullableFilter<"Admin"> | string | null
+  contactNumber?: Prisma.StringNullableFilter<"Admin"> | string | null
   emailVerified?: Prisma.BoolFilter<"Admin"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Admin"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Admin"> | Date | string
@@ -240,7 +260,9 @@ export type AdminOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  image?: Prisma.SortOrderInput | Prisma.SortOrder
+  profileAvatar?: Prisma.SortOrderInput | Prisma.SortOrder
+  loaction?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -257,7 +279,9 @@ export type AdminScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Admin"> | string
   name?: Prisma.StringWithAggregatesFilter<"Admin"> | string
   email?: Prisma.StringWithAggregatesFilter<"Admin"> | string
-  image?: Prisma.StringNullableWithAggregatesFilter<"Admin"> | string | null
+  profileAvatar?: Prisma.StringNullableWithAggregatesFilter<"Admin"> | string | null
+  loaction?: Prisma.StringNullableWithAggregatesFilter<"Admin"> | string | null
+  contactNumber?: Prisma.StringNullableWithAggregatesFilter<"Admin"> | string | null
   emailVerified?: Prisma.BoolWithAggregatesFilter<"Admin"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Admin"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Admin"> | Date | string
@@ -268,7 +292,9 @@ export type AdminCreateInput = {
   id?: string
   name: string
   email: string
-  image?: string | null
+  profileAvatar?: string | null
+  loaction?: string | null
+  contactNumber?: string | null
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -279,7 +305,9 @@ export type AdminUncheckedCreateInput = {
   id?: string
   name: string
   email: string
-  image?: string | null
+  profileAvatar?: string | null
+  loaction?: string | null
+  contactNumber?: string | null
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -290,7 +318,9 @@ export type AdminUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  loaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -301,7 +331,9 @@ export type AdminUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  loaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -312,7 +344,9 @@ export type AdminCreateManyInput = {
   id?: string
   name: string
   email: string
-  image?: string | null
+  profileAvatar?: string | null
+  loaction?: string | null
+  contactNumber?: string | null
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -323,7 +357,9 @@ export type AdminUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  loaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -333,7 +369,9 @@ export type AdminUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  loaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -344,7 +382,9 @@ export type AdminCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  image?: Prisma.SortOrder
+  profileAvatar?: Prisma.SortOrder
+  loaction?: Prisma.SortOrder
+  contactNumber?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -355,7 +395,9 @@ export type AdminMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  image?: Prisma.SortOrder
+  profileAvatar?: Prisma.SortOrder
+  loaction?: Prisma.SortOrder
+  contactNumber?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -366,7 +408,9 @@ export type AdminMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  image?: Prisma.SortOrder
+  profileAvatar?: Prisma.SortOrder
+  loaction?: Prisma.SortOrder
+  contactNumber?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -430,7 +474,9 @@ export type AdminCreateWithoutUserInput = {
   id?: string
   name: string
   email: string
-  image?: string | null
+  profileAvatar?: string | null
+  loaction?: string | null
+  contactNumber?: string | null
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -440,7 +486,9 @@ export type AdminUncheckedCreateWithoutUserInput = {
   id?: string
   name: string
   email: string
-  image?: string | null
+  profileAvatar?: string | null
+  loaction?: string | null
+  contactNumber?: string | null
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -466,7 +514,9 @@ export type AdminUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  loaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -476,7 +526,9 @@ export type AdminUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profileAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  loaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -488,7 +540,9 @@ export type AdminSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   name?: boolean
   email?: boolean
-  image?: boolean
+  profileAvatar?: boolean
+  loaction?: boolean
+  contactNumber?: boolean
   emailVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -500,7 +554,9 @@ export type AdminSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   name?: boolean
   email?: boolean
-  image?: boolean
+  profileAvatar?: boolean
+  loaction?: boolean
+  contactNumber?: boolean
   emailVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -512,7 +568,9 @@ export type AdminSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   name?: boolean
   email?: boolean
-  image?: boolean
+  profileAvatar?: boolean
+  loaction?: boolean
+  contactNumber?: boolean
   emailVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -524,14 +582,16 @@ export type AdminSelectScalar = {
   id?: boolean
   name?: boolean
   email?: boolean
-  image?: boolean
+  profileAvatar?: boolean
+  loaction?: boolean
+  contactNumber?: boolean
   emailVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
 }
 
-export type AdminOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "image" | "emailVerified" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["admin"]>
+export type AdminOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "profileAvatar" | "loaction" | "contactNumber" | "emailVerified" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["admin"]>
 export type AdminInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -551,7 +611,9 @@ export type $AdminPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     id: string
     name: string
     email: string
-    image: string | null
+    profileAvatar: string | null
+    loaction: string | null
+    contactNumber: string | null
     emailVerified: boolean
     createdAt: Date
     updatedAt: Date
@@ -983,7 +1045,9 @@ export interface AdminFieldRefs {
   readonly id: Prisma.FieldRef<"Admin", 'String'>
   readonly name: Prisma.FieldRef<"Admin", 'String'>
   readonly email: Prisma.FieldRef<"Admin", 'String'>
-  readonly image: Prisma.FieldRef<"Admin", 'String'>
+  readonly profileAvatar: Prisma.FieldRef<"Admin", 'String'>
+  readonly loaction: Prisma.FieldRef<"Admin", 'String'>
+  readonly contactNumber: Prisma.FieldRef<"Admin", 'String'>
   readonly emailVerified: Prisma.FieldRef<"Admin", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Admin", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Admin", 'DateTime'>

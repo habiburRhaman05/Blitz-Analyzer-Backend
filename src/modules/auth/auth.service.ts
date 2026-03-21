@@ -22,25 +22,25 @@ import { PROFILE_CACHE_EXPIRE, REFRESH_EXPIRE, SESSION_EXPIRE } from "../../conf
 
 const registerUser = async (payload: IRegisterPayload) => {
   try {
-     const { user } = await auth.api.signUpEmail({
-      body:{
-        email:payload.email,
-        name:payload.name,
-        password:payload.password,
-        role:UserRole.USER
+    const { user } = await auth.api.signUpEmail({
+      body: {
+        email: payload.email,
+        name: payload.name,
+        password: payload.password,
+        role: UserRole.USER
       }
     })
 
     const customerProfile = await prisma.customerProfile.create({
-      data:{
-        email:user.email,
-        name:user.name,
-        userId:user.id
+      data: {
+        email: user.email,
+        name: user.name,
+        userId: user.id
       }
     })
-    return { user,customerProfile };
+    return { user, customerProfile };
   } catch (error) {
-  
+
     throw error;
   }
 };
@@ -72,7 +72,7 @@ const loginUser = async (payload: ILoginUserPayload) => {
   };
   const refreshTokenPayload = {
     ...accessTokenPayload,
-    token:data.token
+    token: data.token
   };
 
   const accessToken = tokenUtils.getAccessToken(accessTokenPayload);
@@ -80,91 +80,91 @@ const loginUser = async (payload: ILoginUserPayload) => {
   const sessionToken = data.token;
 
 
-  return { accessToken, refreshToken, sessionToken,user:data.user };
+  return { accessToken, refreshToken, sessionToken, user: data.user };
 };
 
 const getAllNewTokens = async (
   refreshToken: string,
 ) => {
-  
-
-    const verifiedRefreshToken = jwtUtils.verifyToken(refreshToken, envConfig.REFRESH_TOKEN_SECRET)
 
 
-    if(!verifiedRefreshToken.success && verifiedRefreshToken.error){
-        throw new AppError( "Invalid refresh token",status.UNAUTHORIZED);
+  const verifiedRefreshToken = jwtUtils.verifyToken(refreshToken, envConfig.REFRESH_TOKEN_SECRET)
+
+
+  if (!verifiedRefreshToken.success && verifiedRefreshToken.error) {
+    throw new AppError("Invalid refresh token", status.UNAUTHORIZED);
+  }
+
+  const data = verifiedRefreshToken.data as JwtPayload;
+
+
+  const isSessionTokenExists = await prisma.session.findUnique({
+    where: {
+      token: data.token,
+    },
+    include: {
+      user: true,
     }
+  })
 
-    const data = verifiedRefreshToken.data as JwtPayload;
+  if (!isSessionTokenExists) {
+    throw new AppError("Invalid session token", status.UNAUTHORIZED);
+  }
 
- 
-    const isSessionTokenExists = await prisma.session.findUnique({
-        where : {
-            token : data.token,
-        },
-        include : {
-            user : true,
-        }
-    })
+  const newAccessToken = tokenUtils.getAccessToken({
+    userId: data.userId,
+    role: data.role,
+    name: data.name,
+    email: data.email,
+    status: data.status,
+    isDeleted: data.isDeleted,
+    emailVerified: data.emailVerified,
+  });
 
-    if(!isSessionTokenExists){
-        throw new AppError( "Invalid session token",status.UNAUTHORIZED);
+  const newRefreshToken = tokenUtils.getRefreshToken({
+    userId: data.userId,
+    role: data.role,
+    name: data.name,
+    email: data.email,
+    status: data.status,
+    isDeleted: data.isDeleted,
+    emailVerified: data.emailVerified,
+    token: isSessionTokenExists.token
+  });
+
+  const { token } = await prisma.session.update({
+    where: {
+      token: data.token
+    },
+    data: {
+      token: data.token,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      updatedAt: new Date(),
     }
+  })
 
-    const newAccessToken = tokenUtils.getAccessToken({
-        userId: data.userId,
-        role: data.role,
-        name: data.name,
-        email: data.email,
-        status: data.status,
-        isDeleted: data.isDeleted,
-        emailVerified: data.emailVerified,
-    });
+  console.log("token updated");
 
-    const newRefreshToken = tokenUtils.getRefreshToken({
-        userId: data.userId,
-        role: data.role,
-        name: data.name,
-        email: data.email,
-        status: data.status,
-        isDeleted: data.isDeleted,
-        emailVerified: data.emailVerified,
-        token:isSessionTokenExists.token
-    });
 
-    const {token} = await prisma.session.update({
-        where : {
-            token : data.token
-        },
-        data : {
-            token : data.token,
-            expiresAt: new Date(Date.now() + 60 * 60  * 1000),
-            updatedAt: new Date(),
-        }
-    })
-
-    console.log("token updated");
-    
-
-    return {
-        accessToken : newAccessToken,
-        refreshToken : newRefreshToken,
-        sessionToken : token,
-    }
+  return {
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+    sessionToken: token,
+  }
 
 };
 
-const getUserProfile = async (user: IRequestUser) => {
+const getCustomerProfile = async (user: IRequestUser) => {
   const cacheKey = `profile:${user.userId}`;
 
   const cached = await redis.get(cacheKey);
   // if (cached) return JSON.parse(cached);
 
   const baseUser = await prisma.customerProfile.findUnique({
-    where: { userId: user.userId },include:{
-      user:true,
-      analysisHistory:true,
-      wallet:true
+    where: { userId: user.userId }, include: {
+      user: true,
+      analysisHistory: true,
+      wallet: true
     }
   });
 
@@ -179,7 +179,7 @@ const getUserProfile = async (user: IRequestUser) => {
   );
 
   console.log(baseUser);
-  
+
 
   return baseUser;
 };
@@ -240,18 +240,103 @@ const resetPassword = async (
 };
 
 const verifyEmail = async (token: string) => {
- try {
-  await auth.api.verifyEmail({
-  query:{
-    token
-  }
-  });
-  return true;
+  try {
+    await auth.api.verifyEmail({
+      query: {
+        token
+      }
+    });
+    return true;
 
- } catch (error) {
-   throw new AppError("Email verification failed", 400);
- }
+  } catch (error) {
+    throw new AppError("Email verification failed", 400);
+  }
 };
+
+
+const changeAvatar = async (profileAvatarUrl: string, userId: string) => {
+  const result = await prisma.$transaction(async (tx) => {
+
+    const user = await tx.user.update({
+      where: { id: userId },
+      data: {
+        image: profileAvatarUrl
+      }
+    });
+
+    const isAdmin = user.role === "ADMIN" ? true : false;
+
+
+    if(isAdmin){
+       await tx.admin.update({
+      where: { userId: userId },
+      data: {
+        profileAvatar: profileAvatarUrl,
+      }
+    })
+    }else{
+    await tx.customerProfile.update({
+      where: { userId: userId },
+      data: {
+        profileAvatar: profileAvatarUrl,
+      }
+    })
+
+    }
+
+
+    return user
+
+  })
+
+  return result;
+}
+const updateProfile = async (updatedData: any, userId: string) => {
+
+
+  const user = await prisma.user.findUnique({
+    where:{id:userId},
+    include:{admin:{include:{user:true}},customerProfile:{
+      include:{user:true}
+    }}
+  });
+    const isAdmin = user?.role === "ADMIN" ? true : false;
+
+    if(isAdmin){
+       const result = await prisma.$transaction(async (ts) =>{
+        await ts.user.update({
+            where:{id:user?.id!},
+          data:{
+             name:updatedData.name || user?.name,
+          }
+        })
+        await ts.admin.update({
+            where:{userId:user?.id!},
+          data:{
+             name:updatedData.name || user?.admin?.name,
+             loaction:updatedData.location || user?.admin?.loaction,
+             contactNumber:updatedData.contactNumber || user?.admin?.contactNumber,
+          }
+        })
+       })
+    }else{
+        await prisma.customerProfile.update({
+      where: { userId:user?.id! },
+      data:{
+             name:updatedData.name || user?.customerProfile?.name,
+             location:updatedData.location || user?.customerProfile?.location,
+             contactNumber:updatedData.contactNumber || user?.customerProfile?.contactNumber,
+             experienceLevel:updatedData.experienceLevel || user?.customerProfile?.experienceLevel,
+             profession:updatedData.profession || user?.customerProfile?.profession,
+          }
+    })
+
+    }
+
+  return user?.role === "USER" ? user?.customerProfile : user?.admin
+}
+
+
 
 
 
@@ -259,10 +344,12 @@ export const authServices = {
   registerUser,
   loginUser,
   getAllNewTokens,
-  getUserProfile,
+  getCustomerProfile,
   logoutUser,
   changePassword,
   requestResetPassword,
   resetPassword,
-  verifyEmail
+  verifyEmail,
+  changeAvatar,
+  updateProfile
 };

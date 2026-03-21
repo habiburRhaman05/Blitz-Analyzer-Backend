@@ -28,7 +28,22 @@ const getWalletTransactions = asyncHandler(async (req: Request, res: Response) =
   });
 });
 
+
+// ✅ Get wallet with transactions
+const claimFreeCredit = asyncHandler(async (req: Request, res: Response) => {
+  const userId = res.locals.user.id; // customer profle id
+
+
+  const result = await walletServices.claimFreeCredit(userId);
+
+  return sendSuccess(res, {
+    message: "Your Free Credit Claim Successfully - Check Wallet",
+    data: result,
+  });
+});
+
 export const walletControllers = {
   getMyWallet,
   getWalletTransactions,
+  claimFreeCredit
 };

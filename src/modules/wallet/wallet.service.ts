@@ -64,8 +64,40 @@ const deductCredits = async (userId: string, amount: number) => {
   });
 };
 
+const claimFreeCredit = async (id:string)=>{
+      //check is alrready claimed or not 
+
+     const user = await prisma.customerProfile.findUnique({
+          where:{id:id,isFreeCreditClaim:false},
+        })
+
+         if(!user){
+          throw new AppError("Your Are Already Claimed Your Free Credit",400)
+         }
+
+         // update user wallet
+
+         const updatedUser = await prisma.creditWallet.update({
+          where:{userId:id},
+          data:{
+           balance:{increment:10}
+          }
+         })
+      await prisma.customerProfile.update({
+          where:{id:id},
+          data:{
+         isFreeCreditClaim:true
+          }
+         })
+
+         return updatedUser
+
+      
+}
+
 export const walletServices = {
   getMyWallet,
   getWalletWithTransactions,
   deductCredits,
+  claimFreeCredit
 };

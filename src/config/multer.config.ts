@@ -7,13 +7,13 @@ const storage = new CloudinaryStorage({
   params: async (req: any, file: any): Promise<any> => {
     // 1. Payload extract (Ensure text fields are sent BEFORE files in Postman)
     const userId = req.body?.userId || "anonymous";
-    const uploadType = req.body?.uploadType || "general"; // e.g., 'avatar', 'report', 'prescription'
+    const uploadType = req.body?.uploadType || "general"; // e.g., 'avatar'
 
     let folderPath;
     let resource_type = "image";
     const options: any = {
-      overwrite: true, // Agon image thakle replace korbe
-      invalidate: true, // CDN cache clear korbe jate notun image-ta thikmoto dekhay
+      overwrite: true, 
+      invalidate: true, 
     };
 
     // 2. Resource & Transformation Logic
@@ -29,7 +29,7 @@ const storage = new CloudinaryStorage({
     }
     const publicId = `${userId}_${uploadType}`;
     return {
-      folder: `ph-health-care/${folderPath}`,
+      folder: `blitz-analyzer/${folderPath}`,
       resource_type,
       public_id: publicId,
       ...options,

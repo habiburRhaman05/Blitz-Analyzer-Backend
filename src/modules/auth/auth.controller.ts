@@ -43,7 +43,7 @@ const loginController = asyncHandler(async (req: Request, res: Response) => {
 });
 // -------------------- PROFILE DATA --------------------
 const getUserProfileController = asyncHandler(async (req: Request, res: Response) => {
-  const user = await authServices.getUserProfile(res.locals.auth)
+  const user = await authServices.getCustomerProfile(res.locals.auth)
   return sendSuccess(res, {
     data: user,
     message: "Profile Data fetch Successfully"
@@ -171,6 +171,31 @@ const verifyEmail = asyncHandler(async (req, res) => {
     return res.redirect(`${envConfig.CLIENT_URL}/verify-email-error`);
   }
 })
+// --------------------  CHANGE AVATAR --------------------
+const changeProfileAvatar = asyncHandler(async (req, res) => {
+        const payload = {
+          profileAvatarUrl:req.body.profileAvatar,
+          userId:res.locals.auth.userId,
+        };
+        console.log(payload);
+        
+        const updatedResult = await authServices.changeAvatar(payload.profileAvatarUrl,payload.userId)
+        return sendSuccess(res,{
+          data:updatedResult,
+          message:"Your Profile Avatar Change Successfully"
+        })
+})
+// --------------------  UPDATE PROFILE --------------------
+const updateProfileInfo = asyncHandler(async (req, res) => {
+  
+         const userId =res.locals.auth.userId
+        
+        const updatedResult = await authServices.updateProfile(req.body,userId)
+        return sendSuccess(res,{
+          data:updatedResult,
+          message:"Your Profile Updated Successfully"
+        })
+})
 
 
 
@@ -179,5 +204,6 @@ export const authControllers = {
   changePasswordController,
   getRefreshTokenController,
   requestPasswordResetController, resetPasswordController,
-  verifyEmail
+  verifyEmail,
+  updateProfileInfo,changeProfileAvatar
 };
