@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { buyCredits } from "./payment.controller";
+import { buyCredits, getAllTransactions } from "./payment.controller";
 import { authMiddleware, roleMiddleware } from "../../middleware/auth-middlewares";
 import { validateRequest } from "../../middleware/validateRequest";
 import { buyCreditSchema } from "./payment.validation";
+import { UserRole } from "../../generated/prisma/enums";
 
 const paymentRouter = Router();
 
@@ -13,6 +14,13 @@ paymentRouter.post(
   roleMiddleware(["USER"]),
   validateRequest(buyCreditSchema),
   buyCredits
+);
+// ✅ Buy credits (User)
+paymentRouter.get(
+  "/get-all-transactions",
+  authMiddleware, 
+  roleMiddleware([UserRole.ADMIN]),
+  getAllTransactions
 );
 
 

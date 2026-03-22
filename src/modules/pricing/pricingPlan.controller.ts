@@ -41,7 +41,7 @@ import httpStatus from "http-status";
  const updatePlan = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const updatedPlan = await pricingPlanServices.updatePlan(id, req.body);
+  const updatedPlan = await pricingPlanServices.updatePlan(id as string, req.body);
 
   return sendSuccess(res, {
     message: "Pricing plan updated successfully",

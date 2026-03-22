@@ -7,6 +7,7 @@ import pricngRouter from "../modules/pricing/pricingPlan.routes";
 import paymentRouter from "../modules/payment/payment.route";
 import walletRouter from "../modules/wallet/wallet.route";
 import mediaRouter from "../modules/media/media.route";
+import { adminRoutes } from "../modules/admin/admin.route";
 
 const indexRouter = Router();
 indexRouter.use("/auth",authRouter)
@@ -17,6 +18,7 @@ indexRouter.use("/pricing",pricngRouter)
 indexRouter.use("/payment",paymentRouter)
 indexRouter.use("/wallet",walletRouter)
 indexRouter.use("/upload-media",mediaRouter)
+indexRouter.use("/admin",adminRoutes)
 
 
 

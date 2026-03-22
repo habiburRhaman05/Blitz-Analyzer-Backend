@@ -26,14 +26,12 @@ const loginUserSchema = z.object({
 
 });
 const changePasswordSchema = z.object({
-
   currentPassword: z
     .string()
     .min(6, "Please enter a currentPassword"),
   newPassword: z
     .string()
     .min(6, "please enter your new password"),
-
 });
 
 

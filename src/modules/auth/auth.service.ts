@@ -160,51 +160,51 @@ const getCustomerProfile = async (user: IRequestUser) => {
   const cached = await redis.get(cacheKey);
   if (cached) return JSON.parse(cached);
   const baseUser = await prisma.user.findUnique({
-    where:{
-      id:user.userId
+    where: {
+      id: user.userId
     },
-    include:{admin:true,customerProfile:true}
+    include: { admin: true, customerProfile: true }
   });
 
- if(baseUser?.role === UserRole.ADMIN){
-       const admin = await prisma.admin.findUnique({
-    where: { id:baseUser?.admin?.id! }, include: {
-      user: true,
-    }
-  });
+  if (baseUser?.role === UserRole.ADMIN) {
+    const admin = await prisma.admin.findUnique({
+      where: { id: baseUser?.admin?.id! }, include: {
+        user: true,
+      }
+    });
 
-  if (!admin)
-    throw new AppError("User not found", status.NOT_FOUND);
+    if (!admin)
+      throw new AppError("User not found", status.NOT_FOUND);
 
-  await redis.set(
-    cacheKey,
-    JSON.stringify(admin),
-    "EX",
-    PROFILE_CACHE_EXPIRE
-  );
-  console.log("Customer logged in");
-  return admin;
- }else{
+    await redis.set(
+      cacheKey,
+      JSON.stringify(admin),
+      "EX",
+      PROFILE_CACHE_EXPIRE
+    );
+    console.log("Customer logged in");
+    return admin;
+  } else {
     const customerProfile = await prisma.customerProfile.findUnique({
-    where: { id:baseUser?.customerProfile?.id!}, include: {
-      user: true,
-      analysisHistory: true,
-      wallet: true
-    }
-  });
+      where: { id: baseUser?.customerProfile?.id! }, include: {
+        user: true,
+        analysisHistory: true,
+        wallet: true
+      }
+    });
 
-  if (!customerProfile)
-    throw new AppError("User not found", status.NOT_FOUND);
+    if (!customerProfile)
+      throw new AppError("User not found", status.NOT_FOUND);
 
-  await redis.set(
-    cacheKey,
-    JSON.stringify(customerProfile),
-    "EX",
-    PROFILE_CACHE_EXPIRE
-  );
-  console.log("Customer logged in");
-  return customerProfile;
- }
+    await redis.set(
+      cacheKey,
+      JSON.stringify(customerProfile),
+      "EX",
+      PROFILE_CACHE_EXPIRE
+    );
+    console.log("Customer logged in");
+    return customerProfile;
+  }
 };
 
 const logoutUser = async (
@@ -290,20 +290,20 @@ const changeAvatar = async (profileAvatarUrl: string, userId: string) => {
     const isAdmin = user.role === "ADMIN" ? true : false;
 
 
-    if(isAdmin){
-       await tx.admin.update({
-      where: { userId: userId },
-      data: {
-        profileAvatar: profileAvatarUrl,
-      }
-    })
-    }else{
-    await tx.customerProfile.update({
-      where: { userId: userId },
-      data: {
-        profileAvatar: profileAvatarUrl,
-      }
-    })
+    if (isAdmin) {
+      await tx.admin.update({
+        where: { userId: userId },
+        data: {
+          profileAvatar: profileAvatarUrl,
+        }
+      })
+    } else {
+      await tx.customerProfile.update({
+        where: { userId: userId },
+        data: {
+          profileAvatar: profileAvatarUrl,
+        }
+      })
 
     }
 
@@ -318,43 +318,45 @@ const updateProfile = async (updatedData: any, userId: string) => {
 
 
   const user = await prisma.user.findUnique({
-    where:{id:userId},
-    include:{admin:{include:{user:true}},customerProfile:{
-      include:{user:true}
-    }}
+    where: { id: userId },
+    include: {
+      admin: { include: { user: true } }, customerProfile: {
+        include: { user: true }
+      }
+    }
   });
-    const isAdmin = user?.role === "ADMIN" ? true : false;
+  const isAdmin = user?.role === "ADMIN" ? true : false;
 
-    if(isAdmin){
-       const result = await prisma.$transaction(async (ts) =>{
-        await ts.user.update({
-            where:{id:user?.id!},
-          data:{
-             name:updatedData.name || user?.name,
-          }
-        })
-        await ts.admin.update({
-            where:{userId:user?.id!},
-          data:{
-             name:updatedData.name || user?.admin?.name,
-             loaction:updatedData.location || user?.admin?.loaction,
-             contactNumber:updatedData.contactNumber || user?.admin?.contactNumber,
-          }
-        })
-       })
-    }else{
-        await prisma.customerProfile.update({
-      where: { userId:user?.id! },
-      data:{
-             name:updatedData.name || user?.customerProfile?.name,
-             location:updatedData.location || user?.customerProfile?.location,
-             contactNumber:updatedData.contactNumber || user?.customerProfile?.contactNumber,
-             experienceLevel:updatedData.experienceLevel || user?.customerProfile?.experienceLevel,
-             profession:updatedData.profession || user?.customerProfile?.profession,
-          }
+  if (isAdmin) {
+    await prisma.$transaction(async (ts) => {
+      await ts.user.update({
+        where: { id: user?.id! },
+        data: {
+          name: updatedData.name || user?.name,
+        }
+      })
+      await ts.admin.update({
+        where: { userId: user?.id! },
+        data: {
+          name: updatedData.name || user?.admin?.name,
+          loaction: updatedData.location || user?.admin?.loaction,
+          contactNumber: updatedData.contactNumber || user?.admin?.contactNumber,
+        }
+      })
+    })
+  } else {
+    await prisma.customerProfile.update({
+      where: { userId: user?.id! },
+      data: {
+        name: updatedData.name || user?.customerProfile?.name,
+        location: updatedData.location || user?.customerProfile?.location,
+        contactNumber: updatedData.contactNumber || user?.customerProfile?.contactNumber,
+        experienceLevel: updatedData.experienceLevel || user?.customerProfile?.experienceLevel,
+        profession: updatedData.profession || user?.customerProfile?.profession,
+      }
     })
 
-    }
+  }
 
   return user?.role === "USER" ? user?.customerProfile : user?.admin
 }

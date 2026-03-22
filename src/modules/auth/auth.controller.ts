@@ -87,6 +87,7 @@ const logoutUserController = asyncHandler(async (req: Request, res: Response) =>
 // -------------------- CHANGE PASSWORD --------------------
 const changePasswordController = asyncHandler(async (req: Request, res: Response) => {
 
+console.log(req.body);
 
 
   const better_auth_session_token = req.cookies["better-auth.session_token"];

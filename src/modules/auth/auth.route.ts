@@ -43,7 +43,7 @@ router.put(
   "/change-password",
 authMiddleware,
  roleMiddleware(["USER","ADMIN"]),
-validateRequest(authSchemas.changePasswordSchema),
+// validateRequest(authSchemas.changePasswordSchema),
   authControllers.changePasswordController
 );
 router.put(

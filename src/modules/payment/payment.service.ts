@@ -8,7 +8,7 @@ import { generatePaymentInvoiceBuffer } from "./payment.utils";
 import { emailQueue } from "../../queue/emailQueue";
 import { envConfig } from "../../config/env";
 
- const handleStripePaymentSuccess = async (paymentId: string) => {
+const handleStripePaymentSuccess = async (paymentId: string) => {
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
     include: { user: true, plan: true },
@@ -48,7 +48,7 @@ import { envConfig } from "../../config/env";
 /**
  * Generate invoice, upload to cloud, and send email.
  */
- const generateAndSendInvoice = async (payment: any) => {
+const generateAndSendInvoice = async (payment: any) => {
   const invoicePayload = {
     status: payment.status,
     invoiceNumber: uuidv7(),
@@ -64,7 +64,7 @@ import { envConfig } from "../../config/env";
 
   const invoiceBuffer = await generatePaymentInvoiceBuffer(invoicePayload);
   console.log("invoice done");
-  
+
   const { secure_url } = await uploadPdfBufferToCloudinary(invoiceBuffer, "Invoice", {
     folder: "blitz-analyzer/invoices",
     resource_type: "raw",
@@ -74,35 +74,35 @@ import { envConfig } from "../../config/env";
   // Save invoice URL
   await prisma.payment.update({ where: { id: payment.id }, data: { invoiceUrl: secure_url } });
 
-await emailQueue.add(
-  "payment-success",
-  {
-    user: {
-      name: invoicePayload.userName,
-      email: invoicePayload.userEmail,
+  await emailQueue.add(
+    "payment-success",
+    {
+      user: {
+        name: invoicePayload.userName,
+        email: invoicePayload.userEmail,
+      },
+      transactionId: payment.id,
+      amount: invoicePayload.amount,
+      credit: payment.plan.credits,
+      invoiceUrl: secure_url,
+      dashboardUrl: `${envConfig.CLIENT_URL}/dashboard`
     },
-    transactionId: payment.id,
-    amount: invoicePayload.amount,
-    credit:payment.plan.credits,
-    invoiceUrl: secure_url,
-    dashboardUrl:`${envConfig.CLIENT_URL}/dashboard`
-  },
-  {
-    attempts: 3, // retry if failed
-    backoff: {
-      type: "exponential",
-      delay: 2000,
-    },
-    removeOnComplete: true,
-    removeOnFail: false,
-    jobId: `payment-${payment.id}`, // 🔥 prevents duplicate emails
-  }
-);
+    {
+      attempts: 3, // retry if failed
+      backoff: {
+        type: "exponential",
+        delay: 2000,
+      },
+      removeOnComplete: true,
+      removeOnFail: false,
+      jobId: `payment-${payment.id}`, // 🔥 prevents duplicate emails
+    }
+  );
 
-  return {secure_url};
+  return { secure_url };
 };
 
- const createCreditPurchaseSession = async (
+const createCreditPurchaseSession = async (
   userId: string,
   planId: string,
   successUrl: string,
@@ -118,20 +118,20 @@ await emailQueue.add(
   }
 
   const customer = await prisma.customerProfile.findUnique({
-    where:{id:userId}
+    where: { id: userId }
   })
 
-  if(!customer){
+  if (!customer) {
     throw new AppError("Invalid or customer", 404);
-     
+
   }
-console.log("planid",planId);
+  console.log("planid", planId);
 
   // 2️⃣ Create pending payment record
   const payment = await prisma.payment.create({
     data: {
-      userId:customer.id,
-      planId:plan.id,
+      userId: customer.id,
+      planId: plan.id,
       amount: plan.price,
       currency: plan.currency,
       status: PaymentStatus.PENDING,
@@ -162,7 +162,7 @@ console.log("planid",planId);
       planId,
     },
   });
-  
+
 
   return {
     checkoutUrl: session.url,
@@ -170,7 +170,45 @@ console.log("planid",planId);
   };
 };
 
-export const paymentServices = {handleStripePaymentSuccess,generateAndSendInvoice,createCreditPurchaseSession}
+
+const getAllTransactions = async (query: any) => {
+  const page = Number(query.page) || 1
+  const limit = Number(query.limit) || 10
+  const skip = (page - 1) * limit
+
+  const [result, total] = await Promise.all([
+    prisma.payment.findMany({
+      include: { plan: true, user: true },
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' }
+    }),
+    prisma.payment.count()
+  ])
+
+  const data = result.map((payment) => ({
+    username: payment.user.name,
+    email: payment.user.email,
+    paymentId: payment.id,
+    paymentTime: payment.createdAt,
+    invoice_url: payment.invoiceUrl,
+    paymentStatus: payment.status,
+    amount: payment.amount,
+    currency: payment.currency,
+    planName: payment.plan.name
+  }))
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPage: Math.ceil(total / limit)
+    },
+    data
+  }
+}
+export const paymentServices = { handleStripePaymentSuccess, generateAndSendInvoice, createCreditPurchaseSession,getAllTransactions }
 
 
 

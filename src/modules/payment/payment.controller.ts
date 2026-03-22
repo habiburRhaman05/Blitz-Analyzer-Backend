@@ -35,3 +35,11 @@ export const stripeWebhook = asyncHandler(async (req: Request, res: Response) =>
     data: result,
   });
 });
+// ✅ Stripe webhook: mark payment complete
+export const getAllTransactions = asyncHandler(async (req: Request, res: Response) => {
+  const result = await paymentServices.getAllTransactions(req.query);
+  return sendSuccess(res, {
+    message: "All Transactions  fetch successfully",
+    data: result,
+  });
+});
