@@ -181,7 +181,6 @@ console.log(result);
     {
       analysisType: parsed.analysisType,
       resumeText: parsed.parseText,
-      jobData: parsed.jobInfo,
       result,
       id:result.id
     }
@@ -250,39 +249,6 @@ const applyImprovementController = asyncHandler(async (req: Request, res: Respon
 
 // 6️⃣ Save Generated Resume
 
-const saveResumeController = asyncHandler(async (req: Request, res: Response) => {
-
-  const userId = res.locals?.user.id;
-
-  if (!userId) {
-    return sendError(res, {
-      message: "Unauthorized",
-      statusCode: status.UNAUTHORIZED
-    });
-  }
-
-  const { name, resumeUrl } = req.body;
-
-  if (!name || !resumeUrl) {
-    return sendError(res, {
-      message: "name and resumeUrl required",
-      statusCode: status.BAD_REQUEST
-    });
-  }
-
-  const resume = await analyzerServices.saveResume({
-    userId,
-    name,
-    resumeUrl
-  });
-
-  return sendSuccess(res, {
-    message: "Resume saved successfully",
-    data: resume,
-    statusCode: status.CREATED
-  });
-});
-
 
 
 const getAllAnalysisHistory = asyncHandler(async(req,res)=>{
@@ -312,7 +278,7 @@ export const analyzerControllers = {
   saveAnalysisController,
   makeAtsFriendlyController,
   applyImprovementController,
-  saveResumeController,
+
   getAllAnalysisHistory,
   deleteAnalysis
 };

@@ -29,7 +29,7 @@ const setAccessTokenCookie = (res: Response, token: string) => {
         secure: isProduction,
         sameSite: isProduction ? "none" : "lax",
         path: '/',
-        maxAge: 10 * 60 * 1000, // 15 minutes in milliseconds
+        maxAge: 60 * 60 * 1000, // 60 minutes in milliseconds
     });
 }
 
@@ -39,7 +39,7 @@ const setRefreshTokenCookie = (res: Response, token: string) => {
         secure: isProduction,
         sameSite: isProduction ? "none" : "lax",
         path: '/',
-        maxAge: 30 * 60 * 1000, // 7 days in milliseconds
+        maxAge: 120 * 60 * 1000, // 2 days in milliseconds
     });
 }
 
@@ -49,7 +49,7 @@ const setBetterAuthSessionCookie = (res: Response, token: string) => {
         secure: isProduction,
         sameSite: isProduction ? "none" : "lax",
         path: '/',
-        maxAge: 10 * 60 * 1000, // 1 day in milliseconds
+        maxAge: 60 * 60 * 1000, // 60 minutes in milliseconds
     });
 }
 

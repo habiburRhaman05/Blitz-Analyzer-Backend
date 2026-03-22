@@ -1,5 +1,7 @@
 import Handlebars from "handlebars";
 import puppeteer from "puppeteer";
+import { uploadPdfBufferToCloudinary } from "../media/media.service";
+import { AppError } from "../../utils/AppError";
 
 export const mergeResume = ({templateString,resumeData}:{resumeData:any,templateString:string})=>{
 const template = Handlebars.compile(templateString);
@@ -41,7 +43,19 @@ const browser = await puppeteer.launch({
 };
 
 
-export const uploadResume = async (file:Uint8Array<ArrayBufferLike>)=>{
-    return  "http.upload.com/my-resume.pdf"
-    
+export const uploadResume = async (resumeBuffer:Uint8Array<ArrayBufferLike> | any,filename:string):Promise<string>=>{
+  console.log("start uploading");
+  
+  //  const  {secure_url} = await uploadPdfBufferToCloudinary(resumeBuffer,"resume",{
+  //   folder:"resumes",
+  //   public_id:filename,
+  //   resource_type:"row"
+  //  })
+const secure_url = "https://collection.cloudinary.com/drngnsgwy/240f440bd6d672875f4285acc7e61f0e"
+   if(!secure_url){
+    throw new AppError(`failed to upload ${filename} in cloudinary`,400)
+   }
+   console.log("end uploading",secure_url);
+   
+    return secure_url
 }

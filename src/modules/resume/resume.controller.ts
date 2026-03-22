@@ -7,6 +7,7 @@ import { resumeServices } from "./resume.service";
 
 const updateResume = asyncHandler(async(req ,res)=>{
 
+console.log(req.body);
 
     const resumeId = req.params.resumeId as string
     const payload = {
@@ -19,7 +20,7 @@ const updateResume = asyncHandler(async(req ,res)=>{
     const result = await resumeServices.saveChanges(payload);
     return sendSuccess(res,{
         data:result,
-        message:"your resume is ready",
+        message:"your resume is updated",
         statusCode:status.CREATED
     })
 })

@@ -16,6 +16,8 @@ export const uploadPdfBufferToCloudinary = (
             },
             (error: UploadApiErrorResponse | undefined, cloudinaryResult: UploadApiResponse | undefined) => {
                 if (error) {
+                    console.log(error);
+                    
                     const errorResult: IUploadPdfFailedResult = {
                         message: error.message || `failed to upload ${type} pdf buffer in cloudinary`,
                         statusCode: status.BAD_REQUEST

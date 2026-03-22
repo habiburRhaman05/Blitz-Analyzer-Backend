@@ -3,7 +3,7 @@ import multer from "multer";
 import { authMiddleware, roleMiddleware } from "../../middleware/auth-middlewares";
 import { analyzerControllers } from "./analyzer.controller";
 import { validateRequest } from "../../middleware/validateRequest";
-import { completeAnalysisSchema, parseResumeSchema, saveAnalysisSchema } from "./analyzer.validation";
+import { completeAnalysisSchema, parseResumeSchema } from "./analyzer.validation";
 
 const analyzerRouter: Router = Router();
 
@@ -40,7 +40,6 @@ analyzerRouter.post(
   "/analysis/save/:id",
   authMiddleware,
     roleMiddleware(["USER"]),
-    validateRequest(saveAnalysisSchema),
   analyzerControllers.saveAnalysisController
 );
 

@@ -23,12 +23,12 @@ const generateResumeForDownload = async (
    }
 
    // ✅ already generated & not edited
-   if (resume.resumeUrl && !resume.isEdit) {
-      return {
-         resumeUrl: resume.resumeUrl,
-         reused: true
-      };
-   }
+   // if (resume.resumeUrl && !resume.isEdit) {
+   //    return {
+   //       resumeUrl: resume.resumeUrl,
+   //       reused: true
+   //    };
+   // }
 
    // ✅ check credit
    const wallet = await prisma.creditWallet.findUnique({
@@ -56,9 +56,11 @@ const generateResumeForDownload = async (
 
    // ✅ generate PDF
    const pdfBuffer = await generateResumePDF(finalHtml);
+console.log("before uplaod");
+console.log("pdf buffer",pdfBuffer);
 
    // ✅ upload
-   const uploadedUrl = await uploadResume(pdfBuffer);
+   const uploadedUrl = await uploadResume(pdfBuffer,`resume-userId_${userId}_templateId_${template.id}`);
 
    // ✅ transaction
    await prisma.$transaction(async (tx) => {
@@ -84,9 +86,9 @@ const generateResumeForDownload = async (
    };
 };
 const saveChanges = async ({
+   payload,
    resumeId,
    templateId,
-   payload
 }: {
    resumeId: string;
    templateId: string;
@@ -96,15 +98,25 @@ const saveChanges = async ({
    const template = await prisma.template.findUnique({
       where: { id: templateId }
    });
+console.log(template?.id);
 
    if (!template) {
       throw new AppError("Template not found", status.NOT_FOUND);
+   }
+
+   const resume = await prisma.resume.findUnique({
+      where:{id:resumeId}
+   })
+   
+   if (!resume) {
+      throw new AppError("Resume not found", status.NOT_FOUND);
    }
 
    return prisma.resume.update({
       where: { id: resumeId },
       data: {
          resumeData: payload,
+         name:payload.name || resume.name,
          isEdit: true
       }
    });

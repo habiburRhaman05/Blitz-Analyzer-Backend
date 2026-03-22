@@ -66,7 +66,7 @@ import { envConfig } from "../../config/env";
   console.log("invoice done");
   
   const { secure_url } = await uploadPdfBufferToCloudinary(invoiceBuffer, "Invoice", {
-    folder: "resume-saas/invoices",
+    folder: "blitz-analyzer/invoices",
     resource_type: "raw",
     public_id: `invoice_${payment.id}`,
   });
