@@ -155,33 +155,56 @@ const getAllNewTokens = async (
 };
 
 const getCustomerProfile = async (user: IRequestUser) => {
-  const cacheKey = `profile:${user.userId}`;
+  const cacheKey = `profile:${user.userId}-${user.role}`;
 
   const cached = await redis.get(cacheKey);
-  // if (cached) return JSON.parse(cached);
+  if (cached) return JSON.parse(cached);
+  const baseUser = await prisma.user.findUnique({
+    where:{
+      id:user.userId
+    },
+    include:{admin:true,customerProfile:true}
+  });
 
-  const baseUser = await prisma.customerProfile.findUnique({
-    where: { userId: user.userId }, include: {
+ if(baseUser?.role === UserRole.ADMIN){
+       const admin = await prisma.admin.findUnique({
+    where: { id:baseUser?.admin?.id! }, include: {
+      user: true,
+    }
+  });
+
+  if (!admin)
+    throw new AppError("User not found", status.NOT_FOUND);
+
+  await redis.set(
+    cacheKey,
+    JSON.stringify(admin),
+    "EX",
+    PROFILE_CACHE_EXPIRE
+  );
+  console.log("Customer logged in");
+  return admin;
+ }else{
+    const customerProfile = await prisma.customerProfile.findUnique({
+    where: { id:baseUser?.customerProfile?.id!}, include: {
       user: true,
       analysisHistory: true,
       wallet: true
     }
   });
 
-  if (!baseUser)
+  if (!customerProfile)
     throw new AppError("User not found", status.NOT_FOUND);
 
   await redis.set(
     cacheKey,
-    JSON.stringify(baseUser),
+    JSON.stringify(customerProfile),
     "EX",
     PROFILE_CACHE_EXPIRE
   );
-
-  console.log(baseUser);
-
-
-  return baseUser;
+  console.log("Customer logged in");
+  return customerProfile;
+ }
 };
 
 const logoutUser = async (

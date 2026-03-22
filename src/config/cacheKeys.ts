@@ -11,7 +11,7 @@ export const DOCTOR_SCHEDULE_LIST_CACHE = "doctor-schedules:list";
 
 export const SESSION_EXPIRE = 60 * 60 * 24;
 export const REFRESH_EXPIRE = 60 * 60 * 24 * 7;
-export const PROFILE_CACHE_EXPIRE = 60 * 5;
+export const PROFILE_CACHE_EXPIRE = 60 * 2;
 
 // For individual entities by id
 export const adminCacheById = (id: string) => `admin:${id}`;
