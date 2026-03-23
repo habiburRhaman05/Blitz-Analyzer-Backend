@@ -1,7 +1,7 @@
 import ejs from "ejs";
 import path from "path";
 import { MailType, sendMail } from "./mailServices";
-
+import bcrypt from "bcrypt";
 export const EMAIL_CONFIG = {
   "payment-success": {
     template: "payment.ejs",
@@ -44,12 +44,7 @@ export const buildTemplateData = (
 
   // Auth-related emails
   if (jobName.includes("verify") || jobName.includes("reset")) {
-    return {
-      name: user?.name,
-      verifyUrl: url,
-      resetUrl: url,
-      ...rest,
-    };
+    return data
   }
 
   // Default (payment, etc.)
@@ -61,6 +56,21 @@ export const getRecipientEmail = (data: any) => {
 };
 
 
+
+
+
+
+export const generateOTP = (length = 6): string => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+export const hashOTP = async (otp: string): Promise<string> => {
+  return bcrypt.hash(otp, 10);
+};
+
+export const getExpiry = (minutes: number): Date => {
+  return new Date(Date.now() + minutes * 60 * 1000);
+};
 
 
 interface EmailPayload {

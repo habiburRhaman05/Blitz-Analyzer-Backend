@@ -9,6 +9,15 @@
 * 🟢 You can import this file directly.
 */
 
+export const VerificationType = {
+  EMAIL_VERIFY: 'EMAIL_VERIFY',
+  PASSWORD_RESET: 'PASSWORD_RESET',
+  LOGIN_OTP: 'LOGIN_OTP'
+} as const
+
+export type VerificationType = (typeof VerificationType)[keyof typeof VerificationType]
+
+
 export const UserRole = {
   USER: 'USER',
   ADMIN: 'ADMIN'

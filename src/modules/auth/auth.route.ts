@@ -50,14 +50,15 @@ router.put(
   "/reset-password",
   authControllers.resetPasswordController
 );
-router.get(
+router.post(
   "/verify-email",
   authControllers.verifyEmail
 );
-router.get(
-  "/verify-email",
-  authControllers.verifyEmail
+router.post(
+  "/resend-otp",
+  authControllers.resendOtp
 );
+
 router.put(
   "/change-avatar",
   authMiddleware,

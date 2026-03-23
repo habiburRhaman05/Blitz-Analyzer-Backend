@@ -58,13 +58,19 @@ model Account {
 }
 
 model Verification {
-  id         String   @id
+ id          String   @id @default(uuid())
   identifier String
   value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
+  type        VerificationType
   @@index([identifier])
   @@map("verification")
+}
+
+enum VerificationType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+  LOGIN_OTP
 }

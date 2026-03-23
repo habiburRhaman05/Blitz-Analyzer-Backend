@@ -26,5 +26,11 @@ const getTemplateById = async (id:string) =>{
    //   await redis.set(redisKey,JSON.stringify(templateDetails))
      return templateDetails
 }
+const updateTemplate = async (id:string) =>{
+  
+}
+const deleteTemplate = async (id:string) =>{
+  
+}
 
-export const templateServices = {createTemplate,allTemplatesList,getTemplateById}
+export const templateServices = {createTemplate,allTemplatesList,getTemplateById,updateTemplate,deleteTemplate}

@@ -159,18 +159,27 @@ const resetPasswordController = asyncHandler(async (req: Request, res: Response)
 
 // --------------------  VERIFY EMAIL --------------------
 const verifyEmail = asyncHandler(async (req, res) => {
-  const { token, callbackURL } = req.query;
-  if (!token || typeof token !== "string") {
-    return res.status(400).send("Token missing");
-  }
-  try {
-   await authServices.verifyEmail(token)
-   console.log(callbackURL);
-   
-    return res.redirect(callbackURL as string);
-  } catch (error: any) {
-    return res.redirect(`${envConfig.CLIENT_URL}/verify-email-error`);
-  }
+
+  const {email,otp} = req.body;
+  const result = await authServices.verifyEmail({email,otp})
+
+   return sendSuccess(res,{
+    message:"Your email verification is successfull",
+    statusCode:200
+   })
+ 
+})
+// -------------------- SEND OTP  --------------------
+const resendOtp = asyncHandler(async (req, res) => {
+
+  const {email,verificationType} = req.body;
+
+   await authServices.resendOtp(email,verificationType)
+
+   return sendSuccess(res,{
+ message: "OTP resent successfully" 
+   })
+ 
 })
 // --------------------  CHANGE AVATAR --------------------
 const changeProfileAvatar = asyncHandler(async (req, res) => {
@@ -206,5 +215,6 @@ export const authControllers = {
   getRefreshTokenController,
   requestPasswordResetController, resetPasswordController,
   verifyEmail,
-  updateProfileInfo,changeProfileAvatar
+  updateProfileInfo,changeProfileAvatar,
+  resendOtp
 };

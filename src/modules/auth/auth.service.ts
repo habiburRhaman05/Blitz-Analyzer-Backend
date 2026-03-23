@@ -8,9 +8,9 @@ import { redis } from "../../config/redis";
 import { tokenUtils } from "../../utils/token";
 import { jwtUtils } from "../../utils/jwt";
 import { AppError } from "../../utils/AppError";
-import { UserRole, UserStatus } from "../../generated/prisma/enums";
+import { UserRole, UserStatus, VerificationType } from "../../generated/prisma/enums";
 import { envConfig } from "../../config/env";
-
+import bcrypt from "bcrypt";
 import type {
   IChangePassword,
   ILoginUserPayload,
@@ -18,10 +18,22 @@ import type {
   IRequestUser,
 } from "./auth.interface";
 import { PROFILE_CACHE_EXPIRE, REFRESH_EXPIRE, SESSION_EXPIRE } from "../../config/cacheKeys";
+import { emailQueue } from "../../queue/emailQueue";
+import { getExpiry, hashOTP } from "../../utils/email.utils";
+
+
+
+
+// 🔹 Utility: generate OTP
+const generateOTP = (length = 6) => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 
 
 const registerUser = async (payload: IRegisterPayload) => {
   try {
+    // 1️⃣ Create user
     const { user } = await auth.api.signUpEmail({
       body: {
         email: payload.email,
@@ -29,22 +41,32 @@ const registerUser = async (payload: IRegisterPayload) => {
         password: payload.password,
         role: UserRole.USER
       }
-    })
+    });
 
-    const customerProfile = await prisma.customerProfile.create({
+    // 2️⃣ Create profile (DB only)
+    await prisma.customerProfile.create({
       data: {
         email: user.email,
         name: user.name,
         userId: user.id
       }
-    })
-    return { user, customerProfile };
-  } catch (error) {
+    });
 
-    throw error;
+    // 3️⃣ Send OTP (separate service)
+    await sendOtp({
+      email: user.email,
+      name: user.name,
+      type: VerificationType.EMAIL_VERIFY,
+      expiration: 5
+    });
+    return { user };
+  } catch (error: any) {
+    throw new AppError(
+      error?.message || "Registration failed",
+      error?.statusCode || 500
+    );
   }
 };
-
 const loginUser = async (payload: ILoginUserPayload) => {
   const { email, password } = payload;
 
@@ -262,17 +284,67 @@ const resetPassword = async (
   return true;
 };
 
-const verifyEmail = async (token: string) => {
-  try {
-    await auth.api.verifyEmail({
-      query: {
-        token
+const verifyEmail = async (payload:{
+  email: string;
+  otp: string;
+}) => {
+ try {
+    const { email, otp } = payload;
+
+    // 1️⃣ Find verification record
+    const record = await prisma.verification.findFirst({
+      where: {
+        identifier: email,
+        type: VerificationType.EMAIL_VERIFY
+      },
+      orderBy: {
+        createdAt: "desc" // always take latest OTP
       }
     });
-    return true;
 
-  } catch (error) {
-    throw new AppError("Email verification failed", 400);
+    if (!record) {
+      throw new AppError("Invalid or expired OTP", 400);
+    }
+
+    // 2️⃣ Check expiry
+    if (record.expiresAt < new Date()) {
+      // cleanup expired token
+      await prisma.verification.delete({ where: { id: record.id } });
+      throw new AppError("OTP expired", 400);
+    }
+
+    // 3️⃣ Compare OTP with hashed value
+    const isMatch = await bcrypt.compare(otp, record.value);
+
+    if (!isMatch) {
+      // optional: increment attempts
+      throw new AppError("Invalid OTP", 400);
+    }
+
+    // 4️⃣ Mark user as verified
+    const user = await prisma.user.update({
+      where: { email },
+      data: {
+        emailVerified: true
+      }
+    });
+
+    // 5️⃣ Delete verification record (one-time use)
+    await prisma.verification.delete({
+      where: { id: record.id }
+    });
+
+    return {
+      success: true,
+      message: "Email verified successfully",
+      user
+    };
+
+  } catch (error: any) {
+    throw new AppError(
+      error?.message || "Email verification failed",
+      error?.statusCode || 400
+    );
   }
 };
 
@@ -365,6 +437,83 @@ const updateProfile = async (updatedData: any, userId: string) => {
 
 
 
+ const sendOtp = async (payload:{
+  email: string;
+  name: string;
+  type: VerificationType;
+  expiration?: number; 
+}) => {
+  const { email, name, type, expiration = 5 } = payload;
+
+  try {
+    // 1️⃣ Generate OTP + hash
+    const otp = generateOTP();
+    const tokenHash = await hashOTP(otp);
+    const expiresAt = getExpiry(expiration);
+
+    // 2️⃣ DB operations (fast transaction)
+    await prisma.$transaction(async (tx) => {
+      await tx.verification.deleteMany({
+        where: {
+          identifier: email,
+          type
+        }
+      });
+
+      await tx.verification.create({
+        data: {
+          identifier: email,
+          value:tokenHash, 
+          type,
+          expiresAt
+        }
+      });
+    });
+
+    // 3️⃣ Send email (outside transaction)
+    await emailQueue.add("verify-email", {
+      user: { name, email },
+      otp,
+      expiryMinutes: expiration
+    });
+
+    return { success: true };
+
+  } catch (error: any) {
+    throw new AppError(
+      error?.message || "Failed to send OTP",
+      error?.statusCode || 500
+    );
+  }
+};
+
+
+ const resendOtp = async (email: string, type: VerificationType = VerificationType.EMAIL_VERIFY) => {
+  // 1️⃣ Check user exists
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw new AppError("User not found", 404);
+
+  // 2️⃣ Optional: Check cooldown (30s–1min)
+  const lastOtp = await prisma.verification.findFirst({
+    where: { identifier: email, type },
+    orderBy: { createdAt: "desc" }
+  });
+
+  if (lastOtp && lastOtp.createdAt.getTime() + 30_000 > Date.now()) {
+    throw new AppError("Please wait before requesting a new OTP", 429);
+  }
+
+  // 3️⃣ Reuse sendOtp service
+  await sendOtp({
+    email: user.email,
+    name: user.name,
+    type,
+    expiration: 5
+  });
+
+  return true
+};
+
 export const authServices = {
   registerUser,
   loginUser,
@@ -376,5 +525,6 @@ export const authServices = {
   resetPassword,
   verifyEmail,
   changeAvatar,
-  updateProfile
+  updateProfile,
+  resendOtp
 };

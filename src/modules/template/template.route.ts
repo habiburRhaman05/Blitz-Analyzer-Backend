@@ -24,4 +24,7 @@ templateRouter.get(
   //add validation
   templateControllers.getTemplateDetails
 );
+
+
+
 export default templateRouter;

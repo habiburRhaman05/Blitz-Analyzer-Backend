@@ -16,6 +16,8 @@ const emailWorker = new Worker(
     try {
       // 1. Prepare data
       const templateData = buildTemplateData(job.name, job.data);
+      console.log(templateData);
+      
       // // 2. Render template
       const html = await renderTemplate(config.template, templateData);
       // // 3. Get recipient
@@ -28,7 +30,7 @@ const emailWorker = new Worker(
         email,
         subject: config.subject,
         html,
-        type: job.name,
+        type: job.name as any,
       });
     } catch (error) {
       console.error(`Error processing [${job.name}]`, error);
