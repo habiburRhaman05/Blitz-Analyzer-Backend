@@ -8,6 +8,7 @@ import { generatePaymentInvoiceBuffer } from "./payment.utils";
 import { emailQueue } from "../../queue/emailQueue";
 import { envConfig } from "../../config/env";
 
+
 const handleStripePaymentSuccess = async (paymentId: string) => {
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
@@ -25,6 +26,8 @@ const handleStripePaymentSuccess = async (paymentId: string) => {
     const updatedPayment = await tx.payment.update({
       where: { id: paymentId },
       data: { status: PaymentStatus.SUCCESS, updatedAt: new Date() },
+    include: { user: true, plan: true },
+
     });
 
     const wallet = await tx.creditWallet.upsert({
@@ -39,7 +42,7 @@ const handleStripePaymentSuccess = async (paymentId: string) => {
 
   // generate invoice
 
-  const invoiceBuffer = await generateAndSendInvoice(payment)
+   await generateAndSendInvoice(result.payment)
 
 
   return result;

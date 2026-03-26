@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { multerUploader } from "../../config/multer.config";
 import { authMiddleware, roleMiddleware } from "../../middleware/auth-middlewares";
+import { sendSuccess } from "../../utils/apiResponse";
 
 const mediaRouter = Router();
 
@@ -15,10 +16,15 @@ mediaRouter.post("/upload-avatar",authMiddleware,roleMiddleware(["ADMIN","USER"]
     if (!avatarFile) {
         return res.status(400).json({ message: "No avatar uploaded!" });
     }
-    res.json({
+    console.log(avatarFile);
+    
+    return sendSuccess(res,{
+        data:{
         secure_url: avatarFile.path,    // Cloudinary URL
         public_id: avatarFile.filename, // Cloudinary Public ID
-    });
+    },
+    statusCode:201
+    })
 });
 
 mediaRouter.post("/upload-images",multerUploader.fields([

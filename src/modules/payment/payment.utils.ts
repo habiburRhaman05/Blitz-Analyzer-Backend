@@ -1,8 +1,11 @@
+import fs from 'fs';
+import path from 'path';
 import PDFDocument from 'pdfkit';
 import { IInvoicePayload } from './payment.interface';
 
-
 export const generatePaymentInvoiceBuffer = (data: IInvoicePayload): Promise<Buffer> => {
+   console.log(data);
+   
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
     const chunks: Buffer[] = [];
@@ -12,7 +15,7 @@ export const generatePaymentInvoiceBuffer = (data: IInvoicePayload): Promise<Buf
     doc.on('error', (err) => reject(err));
 
     // --- Branding ---
-    const logoUrl = 'https://res.cloudinary.com/drngnsgwy/image/upload/blitz-analyzer/images/logos/light-logo_jvaomw.svg';
+    const logoPath = path.join(__dirname, '../../assets/invoice-logo.svg');
     const isSuccess = data.status === 'COMPLETE';
     const primaryColor = '#0070f3';
     const secondaryColor = '#444'; 
@@ -21,7 +24,18 @@ export const generatePaymentInvoiceBuffer = (data: IInvoicePayload): Promise<Buf
     const statusLabel = isSuccess ? 'Payment Receipt' : 'Payment Failed';
 
     // --- Header: Logo + Title ---
-    doc.image(logoUrl, 50, 45, { width: 120 }); // left-aligned logo
+    // Add error handling for logo
+    try {
+      if (fs.existsSync(logoPath)) {
+        doc.image(logoPath, 50, 45, { width: 120 });
+      } else {
+        console.warn('Logo not found at:', logoPath);
+      }
+    } catch (error) {
+      console.error('Failed to add logo:', error);
+      // Continue without logo
+    }
+    
     doc.fillColor(primaryColor).fontSize(20).text('Blitz-Analyzer', 180, 50);
     doc.fontSize(12).fillColor(secondaryColor).text(statusLabel, 180, 75);
     

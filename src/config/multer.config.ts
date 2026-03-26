@@ -5,6 +5,8 @@ import { cloudinaryInstance } from "./cloudinary.config";
 const storage = new CloudinaryStorage({
   cloudinary: cloudinaryInstance,
   params: async (req: any, file: any): Promise<any> => {
+    console.log("uploading");
+    
     // 1. Payload extract (Ensure text fields are sent BEFORE files in Postman)
     const userId = req.body?.userId || "anonymous";
     const uploadType = req.body?.uploadType || "general"; // e.g., 'avatar'
@@ -28,6 +30,8 @@ const storage = new CloudinaryStorage({
 
     }
     const publicId = `${userId}_${uploadType}`;
+    console.log("done");
+    
     return {
       folder: `blitz-analyzer/${folderPath}`,
       resource_type,
