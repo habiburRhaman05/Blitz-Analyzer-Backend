@@ -5,12 +5,12 @@ import { sendError, sendSuccess } from "../../utils/apiResponse";
 import { asyncHandler } from "../../utils/asyncHandler";
 import status from "http-status";
 import { AppError } from "../../utils/AppError";
-import {paymentServices} from "../payment/payment.service"
+import { paymentServices } from "../payment/payment.service"
 import { prisma } from "../../lib/prisma";
 
 export const handleStripeWebhookController = asyncHandler(async (req, res) => {
   console.log("receive ");
-  
+
   const endpointSecret = envConfig.STRIPE_WEBHOOK_SECRET;
   let event: Stripe.Event;
 
@@ -21,19 +21,17 @@ export const handleStripeWebhookController = asyncHandler(async (req, res) => {
     }
 
     event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
- 
-    
+
+
   } catch (err: any) {
-    console.log("error",err);
-    
-          throw new AppError("stripe failed to data parse", status.BAD_REQUEST);
+    console.log("error", err);
+
+    throw new AppError("stripe failed to data parse", status.BAD_REQUEST);
 
   }
 
-
   const session = (event.data.object as any) || {};
-  // console.log("session: ",session);
-  
+
   const userId = session.metadata?.userId;
   const paymentId = session.metadata?.paymentId;
 
@@ -43,28 +41,25 @@ export const handleStripeWebhookController = asyncHandler(async (req, res) => {
 
   switch (event.type) {
 
-   case "payment_intent.succeeded" :{
-     console.log("receivve payment_intent complete");
+    case "payment_intent.succeeded": {
+      console.log("receive payment_intent complete");
+      if (session.payment_status !== "paid") break;
+      console.log("payment processing start");
+      await paymentServices.handleStripePaymentSuccess(paymentId);
+      console.log("payemnt processinng done");
+      break;
 
-            if (session.payment_status !== "paid") break;
-console.log("payment start");
-
-      const { payment } = await paymentServices.handleStripePaymentSuccess(paymentId);
-      console.log("payemnt done");
     }
 
     case "checkout.session.completed": {
-     console.log("receivve checkout session complete");
-     
+      console.log("receive payment_intent complete");
       if (session.payment_status !== "paid") break;
-console.log("payment start");
-
-      const { payment } = await paymentServices.handleStripePaymentSuccess(paymentId);
-      console.log("payemnt done");
+      console.log("payment processing start");
+      await paymentServices.handleStripePaymentSuccess(paymentId);
+      console.log("payemnt processinng done");
       break;
     }
 
- 
 
     case "checkout.session.expired":
     case "payment_intent.payment_failed": {
