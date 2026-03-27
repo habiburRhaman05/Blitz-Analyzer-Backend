@@ -12,6 +12,7 @@ model CustomerProfile  {
   payments           Payment[]
   analysisHistory   Analysis[]
   savedResumes Resume[]
+  review Review?
     createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
      userId String @unique

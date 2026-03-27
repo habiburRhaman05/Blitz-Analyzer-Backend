@@ -1,0 +1,10 @@
+model Review {
+    id         String          @id @default(uuid())
+    reviewText String
+    rating     Float
+    createdAt  DateTime        @default(now())
+    updatedAt  DateTime        @updatedAt
+    userId     String          @unique
+    user       CustomerProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+    @@map("reviews")
+}
