@@ -63,6 +63,7 @@ export const ModelName = {
   Payment: 'Payment',
   PricingPlan: 'PricingPlan',
   Resume: 'Resume',
+  Review: 'Review',
   Template: 'Template'
 } as const
 
@@ -266,6 +267,18 @@ export const ResumeScalarFieldEnum = {
 } as const
 
 export type ResumeScalarFieldEnum = (typeof ResumeScalarFieldEnum)[keyof typeof ResumeScalarFieldEnum]
+
+
+export const ReviewScalarFieldEnum = {
+  id: 'id',
+  reviewText: 'reviewText',
+  rating: 'rating',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
 
 
 export const TemplateScalarFieldEnum = {

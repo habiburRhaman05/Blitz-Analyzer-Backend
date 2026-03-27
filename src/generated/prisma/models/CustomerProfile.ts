@@ -242,6 +242,7 @@ export type CustomerProfileWhereInput = {
   payments?: Prisma.PaymentListRelationFilter
   analysisHistory?: Prisma.AnalysisListRelationFilter
   savedResumes?: Prisma.ResumeListRelationFilter
+  review?: Prisma.XOR<Prisma.ReviewNullableScalarRelationFilter, Prisma.ReviewWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
@@ -262,6 +263,7 @@ export type CustomerProfileOrderByWithRelationInput = {
   payments?: Prisma.PaymentOrderByRelationAggregateInput
   analysisHistory?: Prisma.AnalysisOrderByRelationAggregateInput
   savedResumes?: Prisma.ResumeOrderByRelationAggregateInput
+  review?: Prisma.ReviewOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
 }
 
@@ -285,6 +287,7 @@ export type CustomerProfileWhereUniqueInput = Prisma.AtLeast<{
   payments?: Prisma.PaymentListRelationFilter
   analysisHistory?: Prisma.AnalysisListRelationFilter
   savedResumes?: Prisma.ResumeListRelationFilter
+  review?: Prisma.XOR<Prisma.ReviewNullableScalarRelationFilter, Prisma.ReviewWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "userId" | "email">
 
@@ -340,6 +343,7 @@ export type CustomerProfileCreateInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   analysisHistory?: Prisma.AnalysisCreateNestedManyWithoutUserInput
   savedResumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewCreateNestedOneWithoutUserInput
   user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
 }
 
@@ -360,6 +364,7 @@ export type CustomerProfileUncheckedCreateInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   analysisHistory?: Prisma.AnalysisUncheckedCreateNestedManyWithoutUserInput
   savedResumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type CustomerProfileUpdateInput = {
@@ -378,6 +383,7 @@ export type CustomerProfileUpdateInput = {
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   analysisHistory?: Prisma.AnalysisUpdateManyWithoutUserNestedInput
   savedResumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUpdateOneWithoutUserNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
 }
 
@@ -398,6 +404,7 @@ export type CustomerProfileUncheckedUpdateInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   analysisHistory?: Prisma.AnalysisUncheckedUpdateManyWithoutUserNestedInput
   savedResumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type CustomerProfileCreateManyInput = {
@@ -587,6 +594,20 @@ export type CustomerProfileUpdateOneRequiredWithoutSavedResumesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutSavedResumesInput, Prisma.CustomerProfileUpdateWithoutSavedResumesInput>, Prisma.CustomerProfileUncheckedUpdateWithoutSavedResumesInput>
 }
 
+export type CustomerProfileCreateNestedOneWithoutReviewInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutReviewInput, Prisma.CustomerProfileUncheckedCreateWithoutReviewInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutReviewInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+}
+
+export type CustomerProfileUpdateOneRequiredWithoutReviewNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerProfileCreateWithoutReviewInput, Prisma.CustomerProfileUncheckedCreateWithoutReviewInput>
+  connectOrCreate?: Prisma.CustomerProfileCreateOrConnectWithoutReviewInput
+  upsert?: Prisma.CustomerProfileUpsertWithoutReviewInput
+  connect?: Prisma.CustomerProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerProfileUpdateToOneWithWhereWithoutReviewInput, Prisma.CustomerProfileUpdateWithoutReviewInput>, Prisma.CustomerProfileUncheckedUpdateWithoutReviewInput>
+}
+
 export type CustomerProfileCreateWithoutAnalysisHistoryInput = {
   id?: string
   name: string
@@ -602,6 +623,7 @@ export type CustomerProfileCreateWithoutAnalysisHistoryInput = {
   wallet?: Prisma.CreditWalletCreateNestedOneWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   savedResumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewCreateNestedOneWithoutUserInput
   user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
 }
 
@@ -621,6 +643,7 @@ export type CustomerProfileUncheckedCreateWithoutAnalysisHistoryInput = {
   wallet?: Prisma.CreditWalletUncheckedCreateNestedOneWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   savedResumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutAnalysisHistoryInput = {
@@ -654,6 +677,7 @@ export type CustomerProfileUpdateWithoutAnalysisHistoryInput = {
   wallet?: Prisma.CreditWalletUpdateOneWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   savedResumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUpdateOneWithoutUserNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
 }
 
@@ -673,6 +697,7 @@ export type CustomerProfileUncheckedUpdateWithoutAnalysisHistoryInput = {
   wallet?: Prisma.CreditWalletUncheckedUpdateOneWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   savedResumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type CustomerProfileCreateWithoutUserInput = {
@@ -691,6 +716,7 @@ export type CustomerProfileCreateWithoutUserInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   analysisHistory?: Prisma.AnalysisCreateNestedManyWithoutUserInput
   savedResumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewCreateNestedOneWithoutUserInput
 }
 
 export type CustomerProfileUncheckedCreateWithoutUserInput = {
@@ -709,6 +735,7 @@ export type CustomerProfileUncheckedCreateWithoutUserInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   analysisHistory?: Prisma.AnalysisUncheckedCreateNestedManyWithoutUserInput
   savedResumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutUserInput = {
@@ -743,6 +770,7 @@ export type CustomerProfileUpdateWithoutUserInput = {
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   analysisHistory?: Prisma.AnalysisUpdateManyWithoutUserNestedInput
   savedResumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUpdateOneWithoutUserNestedInput
 }
 
 export type CustomerProfileUncheckedUpdateWithoutUserInput = {
@@ -761,6 +789,7 @@ export type CustomerProfileUncheckedUpdateWithoutUserInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   analysisHistory?: Prisma.AnalysisUncheckedUpdateManyWithoutUserNestedInput
   savedResumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type CustomerProfileCreateWithoutWalletInput = {
@@ -778,6 +807,7 @@ export type CustomerProfileCreateWithoutWalletInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   analysisHistory?: Prisma.AnalysisCreateNestedManyWithoutUserInput
   savedResumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewCreateNestedOneWithoutUserInput
   user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
 }
 
@@ -797,6 +827,7 @@ export type CustomerProfileUncheckedCreateWithoutWalletInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   analysisHistory?: Prisma.AnalysisUncheckedCreateNestedManyWithoutUserInput
   savedResumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutWalletInput = {
@@ -830,6 +861,7 @@ export type CustomerProfileUpdateWithoutWalletInput = {
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   analysisHistory?: Prisma.AnalysisUpdateManyWithoutUserNestedInput
   savedResumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUpdateOneWithoutUserNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
 }
 
@@ -849,6 +881,7 @@ export type CustomerProfileUncheckedUpdateWithoutWalletInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   analysisHistory?: Prisma.AnalysisUncheckedUpdateManyWithoutUserNestedInput
   savedResumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type CustomerProfileCreateWithoutPaymentsInput = {
@@ -866,6 +899,7 @@ export type CustomerProfileCreateWithoutPaymentsInput = {
   wallet?: Prisma.CreditWalletCreateNestedOneWithoutUserInput
   analysisHistory?: Prisma.AnalysisCreateNestedManyWithoutUserInput
   savedResumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewCreateNestedOneWithoutUserInput
   user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
 }
 
@@ -885,6 +919,7 @@ export type CustomerProfileUncheckedCreateWithoutPaymentsInput = {
   wallet?: Prisma.CreditWalletUncheckedCreateNestedOneWithoutUserInput
   analysisHistory?: Prisma.AnalysisUncheckedCreateNestedManyWithoutUserInput
   savedResumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutPaymentsInput = {
@@ -918,6 +953,7 @@ export type CustomerProfileUpdateWithoutPaymentsInput = {
   wallet?: Prisma.CreditWalletUpdateOneWithoutUserNestedInput
   analysisHistory?: Prisma.AnalysisUpdateManyWithoutUserNestedInput
   savedResumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUpdateOneWithoutUserNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
 }
 
@@ -937,6 +973,7 @@ export type CustomerProfileUncheckedUpdateWithoutPaymentsInput = {
   wallet?: Prisma.CreditWalletUncheckedUpdateOneWithoutUserNestedInput
   analysisHistory?: Prisma.AnalysisUncheckedUpdateManyWithoutUserNestedInput
   savedResumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type CustomerProfileCreateWithoutSavedResumesInput = {
@@ -954,6 +991,7 @@ export type CustomerProfileCreateWithoutSavedResumesInput = {
   wallet?: Prisma.CreditWalletCreateNestedOneWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   analysisHistory?: Prisma.AnalysisCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewCreateNestedOneWithoutUserInput
   user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
 }
 
@@ -973,6 +1011,7 @@ export type CustomerProfileUncheckedCreateWithoutSavedResumesInput = {
   wallet?: Prisma.CreditWalletUncheckedCreateNestedOneWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   analysisHistory?: Prisma.AnalysisUncheckedCreateNestedManyWithoutUserInput
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type CustomerProfileCreateOrConnectWithoutSavedResumesInput = {
@@ -1006,6 +1045,7 @@ export type CustomerProfileUpdateWithoutSavedResumesInput = {
   wallet?: Prisma.CreditWalletUpdateOneWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   analysisHistory?: Prisma.AnalysisUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUpdateOneWithoutUserNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
 }
 
@@ -1025,6 +1065,99 @@ export type CustomerProfileUncheckedUpdateWithoutSavedResumesInput = {
   wallet?: Prisma.CreditWalletUncheckedUpdateOneWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   analysisHistory?: Prisma.AnalysisUncheckedUpdateManyWithoutUserNestedInput
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type CustomerProfileCreateWithoutReviewInput = {
+  id?: string
+  name: string
+  email: string
+  profileAvatar?: string | null
+  location?: string | null
+  contactNumber?: string | null
+  isFreeCreditClaim?: boolean
+  profession?: string | null
+  experienceLevel?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  wallet?: Prisma.CreditWalletCreateNestedOneWithoutUserInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  analysisHistory?: Prisma.AnalysisCreateNestedManyWithoutUserInput
+  savedResumes?: Prisma.ResumeCreateNestedManyWithoutUserInput
+  user: Prisma.UserCreateNestedOneWithoutCustomerProfileInput
+}
+
+export type CustomerProfileUncheckedCreateWithoutReviewInput = {
+  id?: string
+  name: string
+  email: string
+  profileAvatar?: string | null
+  location?: string | null
+  contactNumber?: string | null
+  isFreeCreditClaim?: boolean
+  profession?: string | null
+  experienceLevel?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userId: string
+  wallet?: Prisma.CreditWalletUncheckedCreateNestedOneWithoutUserInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  analysisHistory?: Prisma.AnalysisUncheckedCreateNestedManyWithoutUserInput
+  savedResumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type CustomerProfileCreateOrConnectWithoutReviewInput = {
+  where: Prisma.CustomerProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutReviewInput, Prisma.CustomerProfileUncheckedCreateWithoutReviewInput>
+}
+
+export type CustomerProfileUpsertWithoutReviewInput = {
+  update: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutReviewInput, Prisma.CustomerProfileUncheckedUpdateWithoutReviewInput>
+  create: Prisma.XOR<Prisma.CustomerProfileCreateWithoutReviewInput, Prisma.CustomerProfileUncheckedCreateWithoutReviewInput>
+  where?: Prisma.CustomerProfileWhereInput
+}
+
+export type CustomerProfileUpdateToOneWithWhereWithoutReviewInput = {
+  where?: Prisma.CustomerProfileWhereInput
+  data: Prisma.XOR<Prisma.CustomerProfileUpdateWithoutReviewInput, Prisma.CustomerProfileUncheckedUpdateWithoutReviewInput>
+}
+
+export type CustomerProfileUpdateWithoutReviewInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  profileAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFreeCreditClaim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  profession?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experienceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  wallet?: Prisma.CreditWalletUpdateOneWithoutUserNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  analysisHistory?: Prisma.AnalysisUpdateManyWithoutUserNestedInput
+  savedResumes?: Prisma.ResumeUpdateManyWithoutUserNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutCustomerProfileNestedInput
+}
+
+export type CustomerProfileUncheckedUpdateWithoutReviewInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  profileAvatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFreeCreditClaim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  profession?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experienceLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  wallet?: Prisma.CreditWalletUncheckedUpdateOneWithoutUserNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  analysisHistory?: Prisma.AnalysisUncheckedUpdateManyWithoutUserNestedInput
+  savedResumes?: Prisma.ResumeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1093,6 +1226,7 @@ export type CustomerProfileSelect<ExtArgs extends runtime.Types.Extensions.Inter
   payments?: boolean | Prisma.CustomerProfile$paymentsArgs<ExtArgs>
   analysisHistory?: boolean | Prisma.CustomerProfile$analysisHistoryArgs<ExtArgs>
   savedResumes?: boolean | Prisma.CustomerProfile$savedResumesArgs<ExtArgs>
+  review?: boolean | Prisma.CustomerProfile$reviewArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerProfileCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerProfile"]>
@@ -1150,6 +1284,7 @@ export type CustomerProfileInclude<ExtArgs extends runtime.Types.Extensions.Inte
   payments?: boolean | Prisma.CustomerProfile$paymentsArgs<ExtArgs>
   analysisHistory?: boolean | Prisma.CustomerProfile$analysisHistoryArgs<ExtArgs>
   savedResumes?: boolean | Prisma.CustomerProfile$savedResumesArgs<ExtArgs>
+  review?: boolean | Prisma.CustomerProfile$reviewArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerProfileCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1167,6 +1302,7 @@ export type $CustomerProfilePayload<ExtArgs extends runtime.Types.Extensions.Int
     payments: Prisma.$PaymentPayload<ExtArgs>[]
     analysisHistory: Prisma.$AnalysisPayload<ExtArgs>[]
     savedResumes: Prisma.$ResumePayload<ExtArgs>[]
+    review: Prisma.$ReviewPayload<ExtArgs> | null
     user: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1580,6 +1716,7 @@ export interface Prisma__CustomerProfileClient<T, Null = never, ExtArgs extends 
   payments<T extends Prisma.CustomerProfile$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   analysisHistory<T extends Prisma.CustomerProfile$analysisHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$analysisHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnalysisPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   savedResumes<T extends Prisma.CustomerProfile$savedResumesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$savedResumesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResumePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  review<T extends Prisma.CustomerProfile$reviewArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerProfile$reviewArgs<ExtArgs>>): Prisma.Prisma__ReviewClient<runtime.Types.Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2111,6 +2248,25 @@ export type CustomerProfile$savedResumesArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.ResumeScalarFieldEnum | Prisma.ResumeScalarFieldEnum[]
+}
+
+/**
+ * CustomerProfile.review
+ */
+export type CustomerProfile$reviewArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Review
+   */
+  select?: Prisma.ReviewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Review
+   */
+  omit?: Prisma.ReviewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReviewInclude<ExtArgs> | null
+  where?: Prisma.ReviewWhereInput
 }
 
 /**

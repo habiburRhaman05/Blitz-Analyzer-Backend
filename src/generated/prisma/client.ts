@@ -102,6 +102,11 @@ export type PricingPlan = Prisma.PricingPlanModel
  */
 export type Resume = Prisma.ResumeModel
 /**
+ * Model Review
+ * 
+ */
+export type Review = Prisma.ReviewModel
+/**
  * Model Template
  * 
  */
