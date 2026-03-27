@@ -3,7 +3,7 @@ import puppeteer from "puppeteer";
 import { uploadPdfBufferToCloudinary } from "../media/media.service";
 import { AppError } from "../../utils/AppError";
 import { cloudinaryInstance } from "../../config/cloudinary.config";
-
+import streamifier from "streamifier"; 
 export const mergeResume = ({templateString,resumeData}:{resumeData:any,templateString:string})=>{
 const template = Handlebars.compile(templateString);
 const finalHTML = template(resumeData);
@@ -105,27 +105,24 @@ export async function generateCustomResumePDF(htmlContent: any) {
 
 
 export async function uploadCustomResumepdf (pdfBuffer,userId) {
-  
-    try {
-        return new Promise((resolve, reject) => {
-            const uploadStream = cloudinaryInstance.uploader.upload_stream(
-                {
-                  folder: "blitz-analyzer/resumes",
-  resource_type: "raw",       
-  type: "upload",              
-  access_mode: "public",   
-  format: "pdf",
-  flags: "attachment"
-                },
-                (error, result) => {
-                    if (error) return reject(error);
-                    resolve(result); 
-                }
-            );
-            uploadStream.end(pdfBuffer);
-        });
 
-    } catch (err) {
-       throw new AppError("Failed to upload Custom Resume pdf",400)
-    }
+     const uploadResult = await new Promise((resolve, reject) => {
+             const stream = cloudinaryInstance.uploader.upload_stream(
+               {
+                 resource_type: "raw",
+                 folder: "blitz-analyzer/resumes",
+                 public_id: `resume-userId_${userId}_${Date.now()}`
+               },
+               (error, result) => {
+                 if (error) return reject(error);
+               
+                 
+                 resolve(result);
+               }
+             );
+    
+             streamifier.createReadStream(pdfBuffer).pipe(stream);
+           });
+
+           return uploadResult.secure_url
 }

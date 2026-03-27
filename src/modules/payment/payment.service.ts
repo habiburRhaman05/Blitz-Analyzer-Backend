@@ -29,23 +29,17 @@ const handleStripePaymentSuccess = async (paymentId: string) => {
     include: { user: true, plan: true },
 
     });
-
     const wallet = await tx.creditWallet.upsert({
       where: { userId: payment.userId },
       update: { balance: { increment: payment.plan.credits } },
       create: { userId: payment.userId, balance: payment.plan.credits },
     });
-
     return { payment: updatedPayment, wallet };
   });
 
+  const invoiceResult  = await generateAndSendInvoice(result.payment);
 
-  // generate invoice
-
-   await generateAndSendInvoice(result.payment)
-
-
-  return result;
+  return {result,invoiceResult}
 };
 
 /**
@@ -75,8 +69,12 @@ const generateAndSendInvoice = async (payment: any) => {
   });
 
   // Save invoice URL
+  console.log("in",secure_url);
+  
   await prisma.payment.update({ where: { id: payment.id }, data: { invoiceUrl: secure_url } });
+    console.log("invoice url save ");
 
+    
   await emailQueue.add(
     "payment-success",
     {
@@ -101,6 +99,7 @@ const generateAndSendInvoice = async (payment: any) => {
       jobId: `payment-${payment.id}`, // 🔥 prevents duplicate emails
     }
   );
+console.log("patment success");
 
   return { secure_url };
 };

@@ -4,11 +4,11 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import { generateCustomResumePDF, generateResumePDF, mergeResume, uploadCustomResumepdf, uploadResume } from "./resume.utils";
 import { cloudinaryInstance } from "../../config/cloudinary.config";
-import streamifier from "streamifier"; 
+import streamifier from "streamifier";
 
 const generateResumeForDownload = async (
-   {userId,
-   resumeId,}:{userId:string,resumeId:string}
+   { userId,
+      resumeId, }: { userId: string, resumeId: string }
 ) => {
 
    const resume = await prisma.resume.findUnique({
@@ -54,26 +54,26 @@ const generateResumeForDownload = async (
    // ✅ upload
    // const uploadedUrl = await uploadResume(pdfBuffer,`resume-userId_${userId}_templateId_${template.id}`);
 
-    const uploadResult = await new Promise((resolve, reject) => {
-         const stream = cloudinaryInstance.uploader.upload_stream(
-           {
-             resource_type: "raw",
-             folder: "blitz-analyzer/resumes",
-             public_id: `resume-userId_${userId}_templateId_${template.id}`
-           },
-           (error, result) => {
-             if (error) return reject(error);
-           
-             
-             resolve(result);
-           }
-         );
-   
-         streamifier.createReadStream(pdfBuffer).pipe(stream);
-       });
+   const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinaryInstance.uploader.upload_stream(
+         {
+            resource_type: "raw",
+            folder: "blitz-analyzer/resumes",
+            public_id: `resume-userId_${userId}_templateId_${template.id}`
+         },
+         (error, result) => {
+            if (error) return reject(error);
 
-       console.log("uploaded");
-       
+
+            resolve(result);
+         }
+      );
+
+      streamifier.createReadStream(pdfBuffer).pipe(stream);
+   });
+
+   console.log("uploaded");
+
 
    // ✅ transaction
    await prisma.$transaction(async (tx) => {
@@ -92,8 +92,6 @@ const generateResumeForDownload = async (
          }
       });
    });
-console.log("ennd transaction");
-
    return {
       resumeUrl: uploadResult.secure_url,
       reused: false
@@ -110,7 +108,7 @@ const saveChanges = async ({
 }) => {
 
 
-   
+
    const template = await prisma.template.findUnique({
       where: { id: templateId }
    });
@@ -121,9 +119,9 @@ const saveChanges = async ({
    }
 
    const resume = await prisma.resume.findUnique({
-      where:{id:resumeId}
+      where: { id: resumeId }
    })
-   
+
    if (!resume) {
       throw new AppError("Resume not found", status.NOT_FOUND);
    }
@@ -132,7 +130,7 @@ const saveChanges = async ({
       where: { id: resumeId },
       data: {
          resumeData: payload.resumeData,
-         name:payload.name || resume.name,
+         name: payload.name || resume.name,
          isEdit: true
       }
    });
@@ -165,20 +163,20 @@ const initResume = async ({
    });
 };
 
-const getAllResumeById = async (userId:string) =>{
+const getAllResumeById = async (userId: string) => {
    const resumes = await prisma.resume.findMany({
-      where:{
+      where: {
          userId
       },
-     
+
    })
 
    return resumes
 }
-const deleteResume = async (resumeId:string) =>{
+const deleteResume = async (resumeId: string) => {
    const resumes = await prisma.resume.delete({
-      where:{
-         id:resumeId
+      where: {
+         id: resumeId
       }
    })
 
@@ -186,11 +184,26 @@ const deleteResume = async (resumeId:string) =>{
 }
 
 
-const generateCustomResumeForDownload = async (htmlContent,resumeData,userId)=>{
-     const pdfBuffer = await generateCustomResumePDF(htmlContent);
-     const uploadPDF = await uploadCustomResumepdf(pdfBuffer,userId);
-     return uploadPDF
+const generateCustomResumeForDownload = async (htmlContent, resumeData, userId) => {
+   const pdfBuffer = await generateCustomResumePDF(htmlContent);
+   const uploadPDFUrl = await uploadCustomResumepdf(pdfBuffer, userId);
+   // check credit
+   const wallet = await prisma.creditWallet.findUnique({
+      where: { userId }
+   });
+
+   if (!wallet || wallet.balance < 10) {
+      throw new AppError("Not enough credits", status.BAD_REQUEST);
+   }
+   await prisma.creditWallet.update({
+      where: { userId },
+      data: {
+         balance: { decrement: 10 }
+      }
+   });
+   console.log(uploadPDFUrl);
    
+   return uploadPDFUrl
 }
 
-export const resumeServices = { generateResumeForDownload, initResume, saveChanges,getAllResumeById,deleteResume,generateCustomResumeForDownload }
+export const resumeServices = { generateResumeForDownload, initResume, saveChanges, getAllResumeById, deleteResume, generateCustomResumeForDownload }
