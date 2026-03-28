@@ -76,10 +76,9 @@ const generateResumeForDownload = asyncHandler(async (req, res) => {
 })
 const generateCustomResumeForDownload = asyncHandler(async (req, res) => {
 
-    const { htmlContent, resumeData={} } = req.body
+    const { htmlContent } = req.body
     const result = await resumeServices.generateCustomResumeForDownload(
         htmlContent,
-        resumeData,
         res.locals.user.id,
     );
     console.log("generateCustomResumeForDownload", result);

@@ -184,7 +184,7 @@ const deleteResume = async (resumeId: string) => {
 }
 
 
-const generateCustomResumeForDownload = async (htmlContent, resumeData, userId) => {
+const generateCustomResumeForDownload = async (htmlContent, userId) => {
    const pdfBuffer = await generateCustomResumePDF(htmlContent);
    const uploadPDFUrl = await uploadCustomResumepdf(pdfBuffer, userId);
    // check credit

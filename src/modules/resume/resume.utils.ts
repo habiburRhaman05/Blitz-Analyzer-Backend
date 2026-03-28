@@ -56,6 +56,9 @@ export const uploadResume = async (resumeBuffer: Uint8Array<ArrayBufferLike> | a
 
   return secure_url
 }
+
+
+
 export async function generateCustomResumePDF(htmlContent: any) {
   const finalHtmlContent = `
 <html>
@@ -109,8 +112,8 @@ export async function uploadCustomResumepdf(pdfBuffer, userId) {
   const uploadResult = await new Promise((resolve, reject) => {
     const stream = cloudinaryInstance.uploader.upload_stream(
       {
-        resource_type: "image",
-        format: "pdf",
+        resource_type: "raw",
+        // format:"pdf",
         folder: "blitz-analyzer/resumes",
         public_id: `resume-userId_${userId}_${Date.now()}`,
       },
