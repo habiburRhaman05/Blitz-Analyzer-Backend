@@ -313,10 +313,11 @@ const verifyEmail = async (payload:{
     const record = await prisma.verification.findFirst({
       where: {
         identifier: email,
+        value:otp,
         type: VerificationType.EMAIL_VERIFY
       },
       orderBy: {
-        createdAt: "desc" // always take latest OTP
+        createdAt: "desc" 
       }
     });
 
@@ -324,19 +325,16 @@ const verifyEmail = async (payload:{
       throw new AppError("Invalid or expired OTP", 400);
     }
 
-    // 2️⃣ Check expiry
     if (record.expiresAt < new Date()) {
-      // cleanup expired token
+ 
       await prisma.verification.delete({ where: { id: record.id } });
       throw new AppError("OTP expired", 400);
     }
 
-    // 3️⃣ Compare OTP with hashed value
-    const isMatch = await bcrypt.compare(otp, record.value);
-console.log(isMatch,otp,record.value);
 
-    if (!isMatch) {
-      // optional: increment attempts
+ 
+    if (otp !== record.value) {  
+
       throw new AppError("Invalid OTP", 400);
     }
 
@@ -352,6 +350,7 @@ console.log(isMatch,otp,record.value);
     await prisma.verification.delete({
       where: { id: record.id }
     });
+
 
     return {
       success: true,
@@ -484,7 +483,7 @@ console.log(isMatch,otp,tokenHash);
       await tx.verification.create({
         data: {
           identifier: email,
-          value:tokenHash, 
+          value:otp, 
           type,
           expiresAt
         }

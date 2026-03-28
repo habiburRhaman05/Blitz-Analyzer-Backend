@@ -165,6 +165,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
   const {email,otp} = req.body;
   const result = await authServices.verifyEmail({email,otp})
 
+
    return sendSuccess(res,{
     message:"Your email verification is successfull",
     statusCode:200
