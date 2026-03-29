@@ -9,7 +9,7 @@ import { paymentServices } from "../payment/payment.service"
 import { prisma } from "../../lib/prisma";
 
 export const handleStripeWebhookController = asyncHandler(async (req, res) => {
-  console.log("receive ");
+  console.log("receive webhook");
 
   const endpointSecret = envConfig.STRIPE_WEBHOOK_SECRET;
   let event: Stripe.Event;
@@ -41,16 +41,6 @@ export const handleStripeWebhookController = asyncHandler(async (req, res) => {
 
   switch (event.type) {
 
-    case "payment_intent.succeeded": {
-      console.log("receive payment_intent complete");
-      if (session.payment_status !== "paid") break;
-      console.log("payment processing start");
-      await paymentServices.handleStripePaymentSuccess(paymentId);
-      console.log("payemnt processinng done");
-      break;
-
-    }
-
     case "checkout.session.completed": {
       console.log("receive payment_intent complete");
       if (session.payment_status !== "paid") break;
@@ -59,9 +49,6 @@ export const handleStripeWebhookController = asyncHandler(async (req, res) => {
       console.log("payemnt processinng done");
       break;
     }
-
-
-    case "checkout.session.expired":
     case "payment_intent.payment_failed": {
       console.warn(`Payment ${paymentId} failed or expired`);
 

@@ -12,6 +12,8 @@ import { redis } from "../../config/redis";
 
 
 const handleStripePaymentSuccess = async (paymentId: string) => {
+  console.log("receive request");
+  
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
     include: { user: true, plan: true },
@@ -172,6 +174,7 @@ const createCreditPurchaseSession = async (
     },
   });
 
+   console.log("session created");
 
   return {
     checkoutUrl: session.url,
