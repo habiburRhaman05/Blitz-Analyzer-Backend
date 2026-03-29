@@ -15,23 +15,16 @@ export const mergeResume = ({ templateString, resumeData }: { resumeData: any, t
 export async function generateResumePDF(html: string, options = {}) {
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", // আপনার Chrome path
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
   });
 
   try {
     const page = await browser.newPage();
-    // Set HTML content
     await page.setContent(html, { waitUntil: "networkidle0" });
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: {
-        top: "20mm",
-        bottom: "20mm",
-        left: "15mm",
-        right: "15mm",
-      },
+      margin: { top: '0px', right: '0px', bottom: '0px', left: '0px' }
       ...options,
     });
     return pdfBuffer;
