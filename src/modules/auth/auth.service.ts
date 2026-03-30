@@ -20,6 +20,7 @@ import type {
 import { PROFILE_CACHE_EXPIRE, REFRESH_EXPIRE, SESSION_EXPIRE } from "../../config/cacheKeys";
 import { emailQueue } from "../../queue/emailQueue";
 import { getExpiry, hashOTP } from "../../utils/email.utils";
+import { Prisma } from "../../generated/prisma/client";
 
 
 
@@ -62,6 +63,22 @@ const registerUser = async (payload: IRegisterPayload) => {
     });
     return { user };
   } catch (error: any) {
+     if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new AppError("Email already exists", 409);
+    }
+
+    // Auth provider duplicate error
+    if (
+      error?.message?.toLowerCase().includes("already") ||
+      error?.message?.toLowerCase().includes("exists")
+    ) {
+      throw new AppError("Email already registered", 409);
+    }
+
+    // ❌ fallback
     throw new AppError(
       error?.message || "Registration failed",
       error?.statusCode || 500
