@@ -20,8 +20,8 @@ export const handleStripeWebhookController = asyncHandler(async (req, res) => {
     if (!signature || !endpointSecret) {
       throw new AppError("Missing Stripe signature or webhook secret", status.BAD_REQUEST);
     }
-const payload = (req as any).rawBody || req.body;
-console.log("payload",payload);
+    const payload = (req as any).rawBody || req.body;
+    console.log("payload", payload);
 
 
     event = stripe.webhooks.constructEvent(
@@ -44,7 +44,6 @@ console.log("payload",payload);
         console.log("✅ checkout.session.completed received");
 
         const session = event.data.object as Stripe.Checkout.Session;
-
         if (session.status !== "complete") {
           console.log("⚠️ Session not complete, skipping");
           break;
@@ -59,11 +58,12 @@ console.log("payload",payload);
 
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
-        const userId = paymentIntent.metadata?.userId;
-        const paymentId = paymentIntent.metadata?.paymentId;
+        const userId = session.metadata?.userId || paymentIntent.metadata?.userId;
+        const paymentId = session.metadata?.paymentId || paymentIntent.metadata?.paymentId;
 
         if (!userId || !paymentId) {
-          console.warn("❌ Missing metadata in paymentIntent");
+          console.warn("❌ Missing metadata in Session AND PaymentIntent");
+          console.log("Session Metadata:", session.metadata); // Debug what's actually there
           return sendError(res, {
             statusCode: 400,
             message: "Missing userId or paymentId in metadata",
