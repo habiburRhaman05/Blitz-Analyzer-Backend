@@ -6,6 +6,7 @@ import { UserRole } from "../../generated/prisma/enums"
 const router = Router()
 
 router.get("/dashboard/kpis",authMiddleware,roleMiddleware([UserRole.USER]), userControllers.getUserKPIReports)
+router.get("/public/kpis", userControllers.getPublicKPIReports)
 
 
 export const userRouter = router

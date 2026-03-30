@@ -22,5 +22,42 @@ const dashboardKPIReports = async (userId:string)=>{
 
 }
 
+const getKPISData = async () => {
+  const [
+    totalUsers,
+    verifiedUsers,
+    totalAnalyses,
+    totalResumes,
+    totalPayments,
 
-export const userServices = {dashboardKPIReports}
+  ] = await Promise.all([
+    // Total users
+    prisma.user.count(),
+
+    // Verified users
+    prisma.user.count({
+      where: { emailVerified: true },
+    }),
+
+    // Total analyses
+    prisma.analysis.count(),
+
+    // Total resumes
+    prisma.resume.count(),
+
+    // Total payments
+    prisma.payment.count(),
+
+  ]);
+
+
+  return {
+    totalUsers,
+    verifiedUsers,
+    totalAnalyses,
+    totalResumes,
+    totalPayments,
+  };
+};
+
+export const userServices = {dashboardKPIReports,getKPISData}
