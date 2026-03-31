@@ -43,7 +43,9 @@ export const buildTemplateData = (
   const { user, url, ...rest } = data;
 
   // Auth-related emails
-  if (jobName.includes("verify") || jobName.includes("reset")) {
+  if (jobName.includes("verify-email") || jobName.includes("reset")) {
+    console.log(data);
+    
     return data
   }
 

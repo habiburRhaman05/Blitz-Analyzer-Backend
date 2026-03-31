@@ -16,6 +16,8 @@ const emailWorker = new Worker(
     try {
       // 1. Prepare data
       const templateData = buildTemplateData(job.name, job.data);
+      console.log(job.name,job.data);
+      
       console.log(templateData);
       
       // // 2. Render template
