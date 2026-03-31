@@ -69,6 +69,8 @@ Blitz Analyzer Backend is a production-style API server designed to power a full
 
 ## Database ERD
 
+![Alt text for the image](https://res.cloudinary.com/drngnsgwy/image/upload/v1774919331/blitz-analyzer/images/blitz-analyzer-db-erd.png)
+
 ---
 
 ## Core Modules
