@@ -7,6 +7,9 @@ import "./workers/emailWorker";
 
 (async () => {
  
+
+
+
   await connectToDatabase();
   await configureCloudinary()
   await startServer();
