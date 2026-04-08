@@ -48,6 +48,16 @@ export type Account = Prisma.AccountModel
  */
 export type Verification = Prisma.VerificationModel
 /**
+ * Model Blog
+ * 
+ */
+export type Blog = Prisma.BlogModel
+/**
+ * Model Comment
+ * 
+ */
+export type Comment = Prisma.CommentModel
+/**
  * Model CreditWallet
  * 
  */
@@ -62,6 +72,21 @@ export type CreditTransaction = Prisma.CreditTransactionModel
  * 
  */
 export type CustomerProfile = Prisma.CustomerProfileModel
+/**
+ * Model Issue
+ * 
+ */
+export type Issue = Prisma.IssueModel
+/**
+ * Model Reply
+ * 
+ */
+export type Reply = Prisma.ReplyModel
+/**
+ * Model Manager
+ * 
+ */
+export type Manager = Prisma.ManagerModel
 /**
  * Model Payment
  * 

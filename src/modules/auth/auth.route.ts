@@ -22,13 +22,13 @@ router.post(
 router.get(
   "/me",
 authMiddleware,
- roleMiddleware(["USER","ADMIN"]),
+ roleMiddleware(["USER","ADMIN","MANAGER"]),
   authControllers.getUserProfileController
 );
 router.get(
   "/logout",
 authMiddleware,
- roleMiddleware(["USER","ADMIN"]),
+ roleMiddleware(["USER","ADMIN","MANAGER"]),
   authControllers.logoutUserController
 );
 router.post(
@@ -42,7 +42,7 @@ router.post(
 router.put(
   "/change-password",
 authMiddleware,
- roleMiddleware(["USER","ADMIN"]),
+ roleMiddleware(["USER","ADMIN","MANAGER"]),
 // validateRequest(authSchemas.changePasswordSchema),
   authControllers.changePasswordController
 );
@@ -62,14 +62,14 @@ router.post(
 router.put(
   "/change-avatar",
   authMiddleware,
- roleMiddleware(["USER","ADMIN"]),
+ roleMiddleware(["USER","ADMIN","MANAGER"]),
   authControllers.changeProfileAvatar
 );
 router.put(
   "/update-profile",
   authMiddleware,
 
- roleMiddleware(["USER","ADMIN"]),
+ roleMiddleware(["USER","ADMIN","MANAGER"]),
   authControllers.updateProfileInfo
 );
 

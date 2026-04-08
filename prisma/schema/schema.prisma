@@ -11,6 +11,7 @@ datasource db {
 
 enum UserRole {
   USER
+  MANAGER
   ADMIN
   
   
@@ -44,4 +45,20 @@ enum CreditType {
   USAGE
   REFUND
   ADMIN_ADJUST
+}
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum IssueType {
+  ISSUE
+  IMPROVEMENT
+  FEEDBACK
+}
+
+enum IssueStatus {
+  PENDING
+  SUCCESS
 }

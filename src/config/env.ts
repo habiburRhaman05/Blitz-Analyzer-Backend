@@ -35,6 +35,7 @@ const envSchema = z.object({
 
   GMAIL_APP_PASSWORD: z.string(),
   GROQ_API_KEY: z.string(),
+  GROQ_MODEL: z.string(),
   FORM_EMAIL: z.string().email(),
 });
 

@@ -20,6 +20,7 @@ export type VerificationType = (typeof VerificationType)[keyof typeof Verificati
 
 export const UserRole = {
   USER: 'USER',
+  MANAGER: 'MANAGER',
   ADMIN: 'ADMIN'
 } as const
 
@@ -69,3 +70,29 @@ export const CreditType = {
 } as const
 
 export type CreditType = (typeof CreditType)[keyof typeof CreditType]
+
+
+export const BlogStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type BlogStatus = (typeof BlogStatus)[keyof typeof BlogStatus]
+
+
+export const IssueType = {
+  ISSUE: 'ISSUE',
+  IMPROVEMENT: 'IMPROVEMENT',
+  FEEDBACK: 'FEEDBACK'
+} as const
+
+export type IssueType = (typeof IssueType)[keyof typeof IssueType]
+
+
+export const IssueStatus = {
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS'
+} as const
+
+export type IssueStatus = (typeof IssueStatus)[keyof typeof IssueStatus]

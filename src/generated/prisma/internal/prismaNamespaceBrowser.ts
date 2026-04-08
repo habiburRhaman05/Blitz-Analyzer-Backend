@@ -57,9 +57,14 @@ export const ModelName = {
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',
+  Blog: 'Blog',
+  Comment: 'Comment',
   CreditWallet: 'CreditWallet',
   CreditTransaction: 'CreditTransaction',
   CustomerProfile: 'CustomerProfile',
+  Issue: 'Issue',
+  Reply: 'Reply',
+  Manager: 'Manager',
   Payment: 'Payment',
   PricingPlan: 'PricingPlan',
   Resume: 'Resume',
@@ -178,6 +183,37 @@ export const VerificationScalarFieldEnum = {
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
 
 
+export const BlogScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  slug: 'slug',
+  excerpt: 'excerpt',
+  fullContent: 'fullContent',
+  seoTags: 'seoTags',
+  category: 'category',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  publishedAt: 'publishedAt',
+  authorId: 'authorId'
+} as const
+
+export type BlogScalarFieldEnum = (typeof BlogScalarFieldEnum)[keyof typeof BlogScalarFieldEnum]
+
+
+export const CommentScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  blogId: 'blogId',
+  authorId: 'authorId',
+  parentId: 'parentId'
+} as const
+
+export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
+
+
 export const CreditWalletScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -218,6 +254,51 @@ export const CustomerProfileScalarFieldEnum = {
 } as const
 
 export type CustomerProfileScalarFieldEnum = (typeof CustomerProfileScalarFieldEnum)[keyof typeof CustomerProfileScalarFieldEnum]
+
+
+export const IssueScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  username: 'username',
+  description: 'description',
+  type: 'type',
+  status: 'status',
+  location: 'location',
+  userMessage: 'userMessage',
+  adminFeedback: 'adminFeedback',
+  imageUrl: 'imageUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IssueScalarFieldEnum = (typeof IssueScalarFieldEnum)[keyof typeof IssueScalarFieldEnum]
+
+
+export const ReplyScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  isAdmin: 'isAdmin',
+  issueId: 'issueId',
+  createdAt: 'createdAt'
+} as const
+
+export type ReplyScalarFieldEnum = (typeof ReplyScalarFieldEnum)[keyof typeof ReplyScalarFieldEnum]
+
+
+export const ManagerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  profileAvatar: 'profileAvatar',
+  loaction: 'loaction',
+  contactNumber: 'contactNumber',
+  emailVerified: 'emailVerified',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type ManagerScalarFieldEnum = (typeof ManagerScalarFieldEnum)[keyof typeof ManagerScalarFieldEnum]
 
 
 export const PaymentScalarFieldEnum = {

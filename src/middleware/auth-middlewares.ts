@@ -84,7 +84,7 @@ export async function authMiddleware(
   }
 }
 
-export function roleMiddleware(allowedRoles: ("ADMIN" | "USER")[]) {
+export function roleMiddleware(allowedRoles: ("ADMIN" | "USER" | "MANAGER")[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     const auth = res.locals.auth;
 
