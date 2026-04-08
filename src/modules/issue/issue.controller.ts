@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import asyncHandler from "../../utils/asyncHandler";
-import sendSuccess from "../../utils/sendSuccess";
+
 import { issueServices } from "./issue.services";
+import { sendSuccess } from "../../utils/apiResponse";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const createIssueController = asyncHandler(async (req: Request, res: Response) => {
   const {
@@ -49,7 +50,7 @@ const updateIssueController = asyncHandler(async (req: Request, res: Response) =
     adminFeedback,
   } = req.body;
 
-  const result = await issueServices.updateIssue(issueId, {
+  const result = await issueServices.updateIssue(issueId as string, {
     title,
     username,
     description,

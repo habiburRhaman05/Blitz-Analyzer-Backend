@@ -12,6 +12,7 @@ import { userRouter } from "../modules/user/user.route";
 import { reviewRoutes } from "../modules/reviews/review.route";
 import aiRoutes from "../modules/generativeAI/ai.routes"
 import issueRouter from "../modules/issue/issue.routes"
+import blogRoutes from "../modules/blog/blog.routes"
 const indexRouter = Router();
 indexRouter.use("/auth",authRouter)
 indexRouter.use("/analyzer",analyzerRouter)
@@ -25,6 +26,7 @@ indexRouter.use("/admin",adminRoutes)
 indexRouter.use("/user",userRouter)
 indexRouter.use("/review",reviewRoutes)
 indexRouter.use("/generative-ai",aiRoutes)
+indexRouter.use("/blog",blogRoutes)
 indexRouter.use("/issue",issueRouter)
 
 
