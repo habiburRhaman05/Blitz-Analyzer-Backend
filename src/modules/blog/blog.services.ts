@@ -1,4 +1,4 @@
-
+import { redis } from "../../config/redis";
 import { Prisma } from "../../generated/prisma/client";
 import { BlogStatus } from "../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
@@ -8,7 +8,9 @@ import {
   IUpdateBlogPayload,
   IGetBlogsQuery,
 } from "./blog.interface";
-import slugify from "slugify"
+import slugify from "slugify";
+
+const CACHE_TTL = 120;
 
 const generateSlug = async (title: string) => {
   let baseSlug = slugify(title, { lower: true, strict: true });
@@ -22,6 +24,22 @@ const generateSlug = async (title: string) => {
   return slug;
 };
 
+const buildListCacheKey = (query: IGetBlogsQuery) => {
+  return `blogs:${JSON.stringify(query)}`;
+};
+
+const buildSingleCacheKey = (id: string) => {
+  return `blog:${id}`;
+};
+
+const invalidateBlogCache = async (id?: string) => {
+  const keys = await redis.keys("blogs:*");
+  if (keys.length) await redis.del(keys);
+
+  if (id) {
+    await redis.del(buildSingleCacheKey(id));
+  }
+};
 
 const createBlog = async (payload: ICreateBlogPayload) => {
   try {
@@ -36,6 +54,8 @@ const createBlog = async (payload: ICreateBlogPayload) => {
           payload.status === "PUBLISHED" ? new Date() : null,
       },
     });
+
+    await invalidateBlogCache();
 
     return blog;
   } catch (error: any) {
@@ -66,6 +86,8 @@ const updateBlog = async (blogId: string, payload: IUpdateBlogPayload) => {
     },
   });
 
+  await invalidateBlogCache(blogId);
+
   return updated;
 };
 
@@ -76,12 +98,21 @@ const deleteBlog = async (blogId: string) => {
 
   if (!exists) throw new AppError("Blog not found", 404);
 
-  return prisma.blog.delete({
+  const deleted = await prisma.blog.delete({
     where: { id: blogId },
   });
+
+  await invalidateBlogCache(blogId);
+
+  return deleted;
 };
 
 const getAllBlogs = async (query: IGetBlogsQuery) => {
+  const cacheKey = buildListCacheKey(query);
+
+  const cached = await redis.get(cacheKey);
+  if (cached) return JSON.parse(cached);
+
   const { page = 1, limit = 10, search, status, category, authorId } = query;
 
   const skip = (page - 1) * limit;
@@ -117,7 +148,7 @@ const getAllBlogs = async (query: IGetBlogsQuery) => {
     }),
   ]);
 
-  return {
+  const result = {
     data: blogs,
     meta: {
       page,
@@ -126,9 +157,18 @@ const getAllBlogs = async (query: IGetBlogsQuery) => {
       totalPages: Math.ceil(total / limit),
     },
   };
+
+  await redis.set(cacheKey, JSON.stringify(result), "EX", CACHE_TTL);
+
+  return result;
 };
 
 const getBlogById = async (blogId: string) => {
+  const cacheKey = buildSingleCacheKey(blogId);
+
+  const cached = await redis.get(cacheKey);
+  if (cached) return JSON.parse(cached);
+
   const blog = await prisma.blog.findUnique({
     where: { id: blogId },
     include: {
@@ -143,6 +183,8 @@ const getBlogById = async (blogId: string) => {
   });
 
   if (!blog) throw new AppError("Blog not found", 404);
+
+  await redis.set(cacheKey, JSON.stringify(blog), "EX", CACHE_TTL);
 
   return blog;
 };
