@@ -4,6 +4,7 @@ import { connectToDatabase, prisma } from "./config/db";
 import { BlogStatus, UserRole } from "./generated/prisma/enums";
 import { auth } from "./lib/auth";
 import "./workers/emailWorker";
+import "./workers/analysisWorker";
 import  slugify  from "slugify";
 (async () => {
  

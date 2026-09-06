@@ -1,8 +1,15 @@
+import status from "http-status";
 import { redis } from "../../config/redis";
-import { UserRole } from "../../generated/prisma/enums";
+import { CreditType, UserRole } from "../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import { getProfileCacheKey } from "../auth/auth.service";
+
+type DeductCreditsMeta = {
+  reason: string;
+  referenceId?: string;
+  type?: CreditType;
+};
 
 /**
  * Get user wallet
@@ -46,24 +53,82 @@ const getWalletWithTransactions = async (userId: string) => {
 };
 
 /**
- * Deduct credits (for resume generation, analysis, etc.)
+ * Deduct credits and record the transaction atomically. Re-checks the
+ * balance inside the transaction so concurrent requests can't overdraw it.
  */
-const deductCredits = async (userId: string, amount: number) => {
-  const wallet = await prisma.creditWallet.findUnique({
-    where: { userId },
+const deductCredits = async (
+  userId: string,
+  amount: number,
+  meta: DeductCreditsMeta
+) => {
+  return prisma.$transaction(async (tx) => {
+    const wallet = await tx.creditWallet.findUnique({
+      where: { userId },
+    });
+
+    if (!wallet) throw new AppError("Wallet not found", status.NOT_FOUND);
+
+    if (wallet.balance < amount) {
+      throw new AppError("Insufficient credits", status.PAYMENT_REQUIRED);
+    }
+
+    const updatedWallet = await tx.creditWallet.update({
+      where: { userId },
+      data: {
+        balance: { decrement: amount },
+      },
+    });
+
+    await tx.creditTransaction.create({
+      data: {
+        walletId: wallet.id,
+        amount: -amount,
+        type: meta.type ?? CreditType.USAGE,
+        reason: meta.reason,
+        referenceId: meta.referenceId ?? null,
+      },
+    });
+
+    return updatedWallet;
   });
+};
 
-  if (!wallet) throw new AppError("Wallet not found", 404);
+/**
+ * Refund credits for a job that failed after exhausting its retries.
+ * Guarded by referenceId so a duplicate failure event can't double-refund.
+ */
+const refundCredits = async (
+  userId: string,
+  amount: number,
+  meta: DeductCreditsMeta
+) => {
+  return prisma.$transaction(async (tx) => {
+    if (meta.referenceId) {
+      const alreadyRefunded = await tx.creditTransaction.findFirst({
+        where: { referenceId: meta.referenceId, type: CreditType.REFUND },
+      });
+      if (alreadyRefunded) return null;
+    }
 
-  if (wallet.balance < amount) {
-    throw new AppError("Insufficient credits", 400);
-  }
+    const wallet = await tx.creditWallet.findUnique({ where: { userId } });
+    if (!wallet) throw new AppError("Wallet not found", status.NOT_FOUND);
 
-  return await prisma.creditWallet.update({
-    where: { userId },
-    data: {
-      balance: { decrement: amount },
-    },
+    const updatedWallet = await tx.creditWallet.update({
+      where: { userId },
+      data: { balance: { increment: amount } },
+    });
+
+    await tx.creditTransaction.create({
+      data: {
+        walletId: wallet.id,
+        amount,
+        type: CreditType.REFUND,
+        reason: meta.reason,
+        referenceId: meta.referenceId ?? null,
+      },
+    });
+
+    return updatedWallet;
   });
 };
 
@@ -107,5 +172,6 @@ export const walletServices = {
   getMyWallet,
   getWalletWithTransactions,
   deductCredits,
+  refundCredits,
   claimFreeCredit
 };

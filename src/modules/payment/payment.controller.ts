@@ -4,6 +4,7 @@ import { sendSuccess, sendError } from "../../utils/apiResponse";
 import { paymentServices } from "./payment.service";
 import { BuyCreditInput, StripeWebhookInput } from "./payment.interface";
 import { buyCreditSchema, stripeWebhookSchema } from "./payment.validation";
+import { logger } from "../../utils/logger";
 
 // ✅ User buys credits (creates pending payment + stripe session)
 export const buyCredits = asyncHandler(async (req: Request, res: Response) => {
@@ -49,7 +50,6 @@ export const buyCredits = asyncHandler(async (req: Request, res: Response) => {
 
 
   const userId =   req.params.userId;
-console.log(userId);
 
   const paymentLists = await paymentServices.getUserPaymentHistory(
    userId as string
@@ -66,12 +66,10 @@ console.log(userId);
 // ✅ Stripe webhook: mark payment complete
 export const stripeWebhook = asyncHandler(async (req: Request, res: Response) => {
   const { paymentId } = stripeWebhookSchema.parse(req.body) as StripeWebhookInput;
-console.log(`received webhook paymentId=${paymentId}`);
 
   const result = await paymentServices.handleStripePaymentSuccess(paymentId);
-console.log("payment done",paymentId);
-console.log(result);
 
+  logger.info({ paymentId }, "Payment processed successfully");
 
   return sendSuccess(res, {
     message: "Payment processed successfully",

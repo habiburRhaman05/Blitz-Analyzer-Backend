@@ -1,17 +1,22 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { analyzerServices } from "./analyzer.services";
-import { sendError, sendSuccess } from "../../utils/apiResponse";
+import { sendAppError, sendError, sendSuccess } from "../../utils/apiResponse";
 import { v7 as uuidv7 } from "uuid";
 import { redis } from "../../config/redis";
 import status from "http-status";
-import { AnalysisScalarFieldEnum } from "../../generated/prisma/internal/prismaNamespaceBrowser";
 import { AnalysisType } from "../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
+import { walletServices } from "../wallet/wallet.service";
+import { CREDIT_COSTS } from "../wallet/wallet.constants";
+import { logger } from "../../utils/logger";
+import { analysisQueue } from "../../queue/analysisQueue";
+import { ANALYSIS_JOBS, ANALYSIS_JOB_OPTIONS } from "./analyzer.constants";
+import { AnalysisJobData } from "./analyzer.interface";
 
 
 
-// 1️⃣ Upload + Parse Resume
+// 1️⃣ Upload + Parse Resume (no AI call, stays synchronous and free)
 
 const parseResumeController = asyncHandler(async (req: Request, res: Response) => {
 
@@ -37,8 +42,6 @@ const parseResumeController = asyncHandler(async (req: Request, res: Response) =
   const parseText = await analyzerServices.parseResumeService(req.file.buffer);
 
   const analysisId = uuidv7();
-console.log(req.body);
-
 
   const parseDoc = {
     id: analysisId,
@@ -70,29 +73,27 @@ console.log(req.body);
   });
 });
 
-// 2️⃣ Complete AI Analysis
+// 2️⃣ Enqueue AI Analysis (ATS scan or job matcher), returns immediately
 
 const completeAnalysesResumeResult = asyncHandler(async (req: Request, res: Response) => {
 
   const { id } = req.params;
+  const userId = res.locals.user.id;
+  const jobId = id as string;
 
-  
-  const redisKey = `resume:${id}`;
-  const resultKey = `analysis-result:${id}`;
+  // findFirst, not findUnique: ownership must be checked alongside id
+  const analysis = await prisma.analysis.findFirst({
+    where: { id: jobId, userId }
+  });
 
-  const analysis =await prisma.analysis.findUnique({
-    where:{id:id as string}
-  })
-
-    if (analysis) {
+  if (analysis) {
     return sendSuccess(res, {
       message: "Analysis fetched from db",
       data: analysis
     });
   }
 
-  // check if AI result already exists
-  const cachedResult = await redis.get(resultKey);
+  const cachedResult = await redis.get(`analysis-result:${jobId}`);
 
   if (cachedResult) {
     return sendSuccess(res, {
@@ -101,7 +102,18 @@ const completeAnalysesResumeResult = asyncHandler(async (req: Request, res: Resp
     });
   }
 
-  const cacheData = await redis.get(redisKey);
+  // same jobId is reused across retries of this endpoint, so a job still
+  // in the queue means "already processing", not "start another one"
+  const existingJob = await analysisQueue.getJob(jobId);
+  if (existingJob) {
+    return sendSuccess(res, {
+      message: "Analysis is already processing",
+      data: { status: "processing", jobId },
+      statusCode: status.ACCEPTED
+    });
+  }
+
+  const cacheData = await redis.get(`resume:${jobId}`);
 
   if (!cacheData) {
     return sendError(res, {
@@ -109,31 +121,75 @@ const completeAnalysesResumeResult = asyncHandler(async (req: Request, res: Resp
       statusCode: status.NOT_FOUND
     });
   }
-console.log("cache data",JSON.stringify(cacheData));
 
-  const { parseText, analysisType,jobData } = JSON.parse(cacheData);
+  const { parseText, analysisType, jobData } = JSON.parse(cacheData);
 
-  let result;
+  const creditCost = analysisType === AnalysisType.JOB_MATCHER
+    ? CREDIT_COSTS.JOB_MATCHER
+    : CREDIT_COSTS.ATS_SCAN;
 
-  if (analysisType === AnalysisType.ATS_SCAN) {
-    result = await analyzerServices.resumeATSScan(parseText,id as string);
+  try {
+    // deduct before enqueueing, so we never run an AI job we won't get paid for
+    await walletServices.deductCredits(userId, creditCost, {
+      reason: `analysis:${analysisType}`,
+      referenceId: jobId
+    });
+  } catch (err) {
+    return sendAppError(res, err);
   }
-  else if (analysisType === AnalysisType.JOB_MATCHER) {
-    result = await analyzerServices.jobMatcher(parseText,jobData);
-  }
 
-  // cache AI result
-  await redis.set(
-    resultKey,
-    JSON.stringify(result),
-    "EX",
-    600
+  const jobName = analysisType === AnalysisType.JOB_MATCHER
+    ? ANALYSIS_JOBS.JOB_MATCHER
+    : ANALYSIS_JOBS.ATS_SCAN;
+
+  await analysisQueue.add(
+    jobName,
+    { userId, jobId, creditCost, parseText, jobData } satisfies AnalysisJobData,
+    { jobId, ...ANALYSIS_JOB_OPTIONS }
   );
-  console.log("r",result);
-  
+
+  logger.info({ analysisId: jobId, analysisType, userId }, "Analysis job enqueued");
+
   return sendSuccess(res, {
-    message: "Resume analysis completed",
-    data: result
+    message: "Analysis is processing",
+    data: { status: "processing", jobId },
+    statusCode: status.ACCEPTED
+  });
+});
+
+// Poll for the result of any analysisQueue job (ATS scan, job matcher,
+// ATS optimize, or resume improve), keyed by the same jobId returned above.
+
+const getJobStatus = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const cachedResult = await redis.get(`analysis-result:${id}`);
+  if (cachedResult) {
+    return sendSuccess(res, {
+      message: "Analysis completed",
+      data: { status: "completed", result: JSON.parse(cachedResult) }
+    });
+  }
+
+  const failure = await redis.get(`analysis-failed:${id}`);
+  if (failure) {
+    return sendSuccess(res, {
+      message: "Analysis failed",
+      data: { status: "failed", ...JSON.parse(failure) }
+    });
+  }
+
+  const job = await analysisQueue.getJob(id as string);
+  if (job) {
+    return sendSuccess(res, {
+      message: "Analysis is processing",
+      data: { status: "processing" }
+    });
+  }
+
+  return sendError(res, {
+    message: "No job found for this id",
+    statusCode: status.NOT_FOUND
   });
 });
 
@@ -177,11 +233,6 @@ const saveAnalysisController = asyncHandler(async (req: Request, res: Response) 
 
   const result = JSON.parse(resultCache);
   const parsed = JSON.parse(parseCache);
-console.log(result);
-
-
-
-  
 
   const newAnalysis = await analyzerServices.saveAnalysisDetails(
     userId,
@@ -193,6 +244,8 @@ console.log(result);
     }
   );
 
+  logger.info({ analysisId: newAnalysis.id, userId }, "Analysis saved");
+
   return sendSuccess(res, {
     message: "Analysis saved successfully",
     data: newAnalysis,
@@ -202,7 +255,7 @@ console.log(result);
 
 
 
-// 4️⃣ ATS Resume Optimization
+// 4️⃣ Enqueue ATS Resume Optimization
 
 const makeAtsFriendlyController = asyncHandler(async (req: Request, res: Response) => {
 
@@ -215,20 +268,34 @@ const makeAtsFriendlyController = asyncHandler(async (req: Request, res: Respons
     });
   }
 
-  const result = await analyzerServices.makeAtsFriendly(
-    resumeText,
-    prompt
+  const userId = res.locals.user.id;
+  const jobId = uuidv7();
+
+  try {
+    await walletServices.deductCredits(userId, CREDIT_COSTS.ATS_OPTIMIZE, {
+      reason: "resume:ats_optimize",
+      referenceId: jobId
+    });
+  } catch (err) {
+    return sendAppError(res, err);
+  }
+
+  await analysisQueue.add(
+    ANALYSIS_JOBS.ATS_OPTIMIZE,
+    { userId, jobId, creditCost: CREDIT_COSTS.ATS_OPTIMIZE, resumeText, prompt } satisfies AnalysisJobData,
+    { jobId, ...ANALYSIS_JOB_OPTIONS }
   );
 
   return sendSuccess(res, {
-    message: "Resume optimized successfully",
-    data: result
+    message: "Resume optimization is processing",
+    data: { status: "processing", jobId },
+    statusCode: status.ACCEPTED
   });
 });
 
 
 
-// 5️⃣ Apply Resume Improvements
+// 5️⃣ Enqueue Resume Improvement
 
 const applyImprovementController = asyncHandler(async (req: Request, res: Response) => {
 
@@ -241,20 +308,30 @@ const applyImprovementController = asyncHandler(async (req: Request, res: Respon
     });
   }
 
-  const result = await analyzerServices.applyImprovement(
-    resumeText,
-    { title, content }
+  const userId = res.locals.user.id;
+  const jobId = uuidv7();
+
+  try {
+    await walletServices.deductCredits(userId, CREDIT_COSTS.RESUME_IMPROVE, {
+      reason: "resume:improve",
+      referenceId: jobId
+    });
+  } catch (err) {
+    return sendAppError(res, err);
+  }
+
+  await analysisQueue.add(
+    ANALYSIS_JOBS.RESUME_IMPROVE,
+    { userId, jobId, creditCost: CREDIT_COSTS.RESUME_IMPROVE, resumeText, title, content } satisfies AnalysisJobData,
+    { jobId, ...ANALYSIS_JOB_OPTIONS }
   );
 
   return sendSuccess(res, {
-    message: "Improvement applied successfully",
-    data: result
+    message: "Improvement is processing",
+    data: { status: "processing", jobId },
+    statusCode: status.ACCEPTED
   });
 });
-
-
-
-// 6️⃣ Save Generated Resume
 
 
 
@@ -263,59 +340,77 @@ const getAllAnalysisHistory = asyncHandler(async(req,res)=>{
   const result = await analyzerServices.getAllAnalysis(userId);
   return sendSuccess(res,{
     data:result,
- 
+
     message:"Fetch analysis history successfully"
   })
 })
-const deleteAnalysis = asyncHandler(async(req,res)=>{
+const deleteAnalysis = asyncHandler(async (req, res) => {
+  const analysisId = req.params.id as string;
+  const userId = res.locals.user.id;
 
-  const analysisId = req.params.id as string
-  console.log("andid",analysisId);
-  
-  const result = await analyzerServices.deleteAnalysis(analysisId);
-  return sendSuccess(res,{
-    data:result,
-    message:"delete analysis history successfully"
-  })
-})
-const generateAnalysisReport = asyncHandler(async(req,res)=>{
+  const result = await analyzerServices.deleteAnalysis(analysisId, userId);
 
-  const analysisId = req.params.id as string
-  console.log("andid",analysisId);
-  
-  const result = await analyzerServices.generateReportHandler(analysisId);
-  return sendSuccess(res,{
-    data:result,
-    message:"Your Analysis Report Generated successfully"
-  })
-})
+  return sendSuccess(res, {
+    data: result,
+    message: "delete analysis history successfully"
+  });
+});
+
+const generateAnalysisReport = asyncHandler(async (req, res) => {
+  const analysisId = req.params.id as string;
+  const userId = res.locals.user.id;
+
+  const result = await analyzerServices.generateReportHandler(analysisId, userId);
+
+  return sendSuccess(res, {
+    data: result,
+    message: "Your Analysis Report Generated successfully"
+  });
+});
 
 
-const jobMatcherController = asyncHandler(async(req,res)=>{
+// Enqueue direct job-matching (upload + match in one request, no prior parse step)
+
+const jobMatcherController = asyncHandler(async (req, res) => {
   if (!req.file) {
     return sendError(res, {
       message: "Resume file is required",
       statusCode: status.BAD_REQUEST
     });
   }
+
+  const userId = res.locals.user.id;
+  const { jobData } = req.body;
+  const jobId = uuidv7();
+
+  try {
+    await walletServices.deductCredits(userId, CREDIT_COSTS.JOB_MATCHER, {
+      reason: "analysis:JOB_MATCHER_DIRECT",
+      referenceId: jobId
+    });
+  } catch (err) {
+    return sendAppError(res, err);
+  }
+
   const parseText = await analyzerServices.parseResumeService(req.file.buffer);
- 
-  
-  const {jobData} =  req.body;
-  console.log("data",jobData);
-  console.log(req.body);
-  
-  
-  const result = await analyzerServices.jobMatcher(parseText,jobData);
- return sendSuccess(res,{
-    data:result,
-    message:"Your job matching report ready"
-  })
-})
+
+  await analysisQueue.add(
+    ANALYSIS_JOBS.JOB_MATCHER_DIRECT,
+    { userId, jobId, creditCost: CREDIT_COSTS.JOB_MATCHER, parseText, jobData } satisfies AnalysisJobData,
+    { jobId, ...ANALYSIS_JOB_OPTIONS }
+  );
+
+  return sendSuccess(res, {
+    data: { status: "processing", jobId },
+    message: "Your job matching report is processing",
+    statusCode: status.ACCEPTED
+  });
+});
 
 export const analyzerControllers = {
   parseResumeController,
   completeAnalysesResumeResult,
+  getJobStatus,
   saveAnalysisController,
   makeAtsFriendlyController,
   applyImprovementController,

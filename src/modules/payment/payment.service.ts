@@ -9,11 +9,10 @@ import { emailQueue } from "../../queue/emailQueue";
 import { envConfig } from "../../config/env";
 import { getProfileCacheKey } from "../auth/auth.service";
 import { redis } from "../../config/redis";
+import { logger } from "../../utils/logger";
 
 
 const handleStripePaymentSuccess = async (paymentId: string) => {
-  console.log("receive request");
-  
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
     include: { user: true, plan: true },
@@ -43,10 +42,11 @@ const handleStripePaymentSuccess = async (paymentId: string) => {
 
   const invoiceResult = await generateAndSendInvoice(result.payment);
 
-  // reset user cache 
-    const cacheKey = getProfileCacheKey(payment.user.userId, UserRole.USER);
-    await redis.del(cacheKey);
-  console.log(invoiceResult);
+  // reset user cache
+  const cacheKey = getProfileCacheKey(payment.user.userId, UserRole.USER);
+  await redis.del(cacheKey);
+
+  logger.info({ paymentId }, "Payment success flow completed");
 
   return { result, invoiceResult }
 };
@@ -69,7 +69,6 @@ const generateAndSendInvoice = async (payment: any) => {
   };
 
   const invoiceBuffer = await generatePaymentInvoiceBuffer(invoicePayload);
-  console.log("invoice done");
 
   const { secure_url } = await uploadPdfBufferToCloudinary(invoiceBuffer, "Invoice", {
     folder: "blitz-analyzer/invoices",
@@ -77,12 +76,7 @@ const generateAndSendInvoice = async (payment: any) => {
     public_id: `invoice_${payment.id}`,
   });
 
-  // Save invoice URL
-  console.log("in", secure_url);
-
   await prisma.payment.update({ where: { id: payment.id }, data: { invoiceUrl: secure_url } });
-  console.log("invoice url save ");
-
 
   await emailQueue.add(
     "payment-success",
@@ -108,7 +102,8 @@ const generateAndSendInvoice = async (payment: any) => {
       jobId: `payment-${payment.id}`, // 🔥 prevents duplicate emails
     }
   );
-  console.log("patment success");
+
+  logger.info({ paymentId: payment.id }, "Invoice generated and queued for delivery");
 
   return { secure_url };
 };
@@ -136,7 +131,6 @@ const createCreditPurchaseSession = async (
     throw new AppError("Invalid or customer", 404);
 
   }
-  console.log("planid", planId);
 
   // 2️⃣ Create pending payment record
   const payment = await prisma.payment.create({
@@ -174,7 +168,7 @@ const createCreditPurchaseSession = async (
     },
   });
 
-   console.log("session created");
+  logger.info({ paymentId: payment.id }, "Checkout session created");
 
   return {
     checkoutUrl: session.url,
@@ -232,8 +226,6 @@ const getPaymentDetails = async (id) => {
   return payment
 }
 const getUserPaymentHistory = async (id) => {
-  console.log(id);
-
   const payments = await prisma.payment.findMany({
     where: {
       userId: id

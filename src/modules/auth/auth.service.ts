@@ -1,15 +1,10 @@
-import crypto from "crypto";
 import status from "http-status";
-import { JwtPayload } from "jsonwebtoken";
 
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
 import { redis } from "../../config/redis";
-import { tokenUtils } from "../../utils/token";
-import { jwtUtils } from "../../utils/jwt";
 import { AppError } from "../../utils/AppError";
 import { UserRole, UserStatus, VerificationType } from "../../generated/prisma/enums";
-import { envConfig } from "../../config/env";
 import bcrypt from "bcrypt";
 import type {
   IChangePassword,
@@ -17,7 +12,7 @@ import type {
   IRegisterPayload,
   IRequestUser,
 } from "./auth.interface";
-import { PROFILE_CACHE_EXPIRE, REFRESH_EXPIRE, SESSION_EXPIRE } from "../../config/cacheKeys";
+import { PROFILE_CACHE_EXPIRE } from "../../config/cacheKeys";
 import { emailQueue } from "../../queue/emailQueue";
 import { getExpiry, hashOTP } from "../../utils/email.utils";
 import { Prisma } from "../../generated/prisma/client";
@@ -156,95 +151,9 @@ const loginUser = async (payload: ILoginUserPayload) => {
   if (data.user.isDeleted || data.user.status === UserStatus.DELETED)
     throw new AppError("User is deleted", status.NOT_FOUND);
 
-  const accessTokenPayload = {
-    userId: data.user.id,
-    role: data.user.role,
-    name: data.user.name,
-    email: data.user.email,
-    status: data.user.status,
-  };
-  const refreshTokenPayload = {
-    ...accessTokenPayload,
-    token: data.token
-  };
-
-  const accessToken = tokenUtils.getAccessToken(accessTokenPayload);
-  const refreshToken = tokenUtils.getRefreshToken(refreshTokenPayload);
   const sessionToken = data.token;
 
-
-  return { accessToken, refreshToken, sessionToken, user: data.user };
-};
-
-const getAllNewTokens = async (
-  refreshToken: string,
-) => {
-
-
-  const verifiedRefreshToken = jwtUtils.verifyToken(refreshToken, envConfig.REFRESH_TOKEN_SECRET)
-
-
-  if (!verifiedRefreshToken.success && verifiedRefreshToken.error) {
-    throw new AppError("Invalid refresh token", status.UNAUTHORIZED);
-  }
-
-  const data = verifiedRefreshToken.data as JwtPayload;
-
-
-  const isSessionTokenExists = await prisma.session.findUnique({
-    where: {
-      token: data.token,
-    },
-    include: {
-      user: true,
-    }
-  })
-
-  if (!isSessionTokenExists) {
-    throw new AppError("Invalid session token", status.UNAUTHORIZED);
-  }
-
-  const newAccessToken = tokenUtils.getAccessToken({
-    userId: data.userId,
-    role: data.role,
-    name: data.name,
-    email: data.email,
-    status: data.status,
-    isDeleted: data.isDeleted,
-    emailVerified: data.emailVerified,
-  });
-
-  const newRefreshToken = tokenUtils.getRefreshToken({
-    userId: data.userId,
-    role: data.role,
-    name: data.name,
-    email: data.email,
-    status: data.status,
-    isDeleted: data.isDeleted,
-    emailVerified: data.emailVerified,
-    token: isSessionTokenExists.token
-  });
-
-  const { token } = await prisma.session.update({
-    where: {
-      token: data.token
-    },
-    data: {
-      token: data.token,
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-      updatedAt: new Date(),
-    }
-  })
-
-  console.log("token updated");
-
-
-  return {
-    accessToken: newAccessToken,
-    refreshToken: newRefreshToken,
-    sessionToken: token,
-  }
-
+  return { sessionToken, user: data.user };
 };
 
 
@@ -318,15 +227,6 @@ const getCustomerProfile = async (user: IRequestUser) => {
     console.log("Customer logged in");
     return customerProfile;
   }
-};
-
-const logoutUser = async (
-  sessionToken: string,
-  refreshToken: string
-) => {
-  await redis.del(`session:${sessionToken}`);
-  await redis.del(`refresh:${refreshToken}`);
-  return true;
 };
 
 const changePassword = async (payload: IChangePassword) => {
@@ -625,14 +525,16 @@ const resendOtp = async (email: string, type: VerificationType = VerificationTyp
   return true
 };
 
+// better-auth's own OAuth flow already established the real session before
+// this runs, so all that's left is creating the profile on first Google sign-in
 const googleLoginSuccess = async (
   session: Record<string, any>
 ) => {
-  const existingPatient = await prisma.customerProfile.findUnique({
+  const existingProfile = await prisma.customerProfile.findUnique({
     where: { userId: session.user.id },
   });
 
-  if (!existingPatient) {
+  if (!existingProfile) {
     await prisma.customerProfile.create({
       data: {
         userId: session.user.id,
@@ -641,49 +543,7 @@ const googleLoginSuccess = async (
       },
     });
   }
-
-  const tokenPayload = {
-    userId: session.user.id,
-    role: session.user.role,
-    name: session.user.name,
-    email: session.user.email,
-  };
-
-  const accessToken = tokenUtils.getAccessToken(tokenPayload);
-  const refreshToken = tokenUtils.getRefreshToken(tokenPayload);
-  const sessionToken = crypto.randomUUID();
-
-  await redis.set(
-    `session:${sessionToken}`,
-    JSON.stringify(tokenPayload),
-    "EX",
-    SESSION_EXPIRE
-  );
-
-  await redis.set(
-    `refresh:${refreshToken}`,
-    sessionToken,
-    "EX",
-    REFRESH_EXPIRE
-  );
-
-  return { accessToken, refreshToken, sessionToken };
 };
-
-const issueTokensAndSession = async (
-  userId: string,
-  role: string,
-  ctx: any
-): Promise<any> => {
-  // Generate refresh token/session first (need sessionId inside refresh payload)
-  // const sessionId = generateJti();
-  // const refreshJti = generateJti();
-  // const { token: refreshToken, expiresAt } = createRefreshToken({
-  //   userId,
-  //   sessionId,
-  //   jti: refreshJti,
-  // });
-}
 
 
 // ---------------- GOOGLE OAUTH ----------------
@@ -713,18 +573,7 @@ const googleOAuthCallback = async (code: string, ctx: any) => {
 
       if (user.status === UserStatus.BANNED) throw new AppError("Account banned", 403);
 
-
- const tokenPayload = {
-    userId: user.id,
-    role: user.role,
-    name: user.name,
-    email: user.email,
-  };
-
-  const accessToken = tokenUtils.getAccessToken(tokenPayload);
-  const refreshToken = tokenUtils.getRefreshToken(tokenPayload);
-    const sessionToken = token
-return {accessToken,refreshToken,sessionToken}
+    return { sessionToken: token };
 
   }else{
     const { user } = await auth.api.signUpEmail({
@@ -749,24 +598,14 @@ return {accessToken,refreshToken,sessionToken}
 
   if (user.status === UserStatus.BANNED) throw new AppError("Account banned", 403);
 
-   const {user:data,token} = await auth.api.signInEmail({
+   const { token } = await auth.api.signInEmail({
       body:{
         email:profile.email,
         password:"Googledsffsdafs#@dfw254235423"
       }
     });
 
- const tokenPayload = {
-    userId: user.id,
-    role: user.role,
-    name: user.name,
-    email: user.email,
-  };
-
-  const accessToken = tokenUtils.getAccessToken(tokenPayload);
-  const refreshToken = tokenUtils.getRefreshToken(tokenPayload);
-    const sessionToken = token
-return {accessToken,refreshToken,sessionToken}
+    return { sessionToken: token };
   }
 };
 
@@ -774,9 +613,7 @@ return {accessToken,refreshToken,sessionToken}
 export  const authServices = {
   registerUser,
   loginUser,
-  getAllNewTokens,
   getCustomerProfile,
-  logoutUser,
   changePassword,
   requestResetPassword,
   resetPassword,

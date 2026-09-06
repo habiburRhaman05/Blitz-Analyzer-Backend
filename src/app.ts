@@ -8,7 +8,6 @@ import { notFound } from "./middleware/notFound";
 import indexRouter from "./routes/index.route";
 import stripeRouter from "./modules/stripe/stripe.route";
 import path from "path";
-import axios from "axios";
 import { cwd } from "process";
 const app: Express = express();
 
@@ -35,26 +34,6 @@ app.get("/health",async (_req, res) =>{
 app.get("/", (req, res) => {
   res.render("home");
 });
-
-app.post("/add-user", async (req, res) => {
-  try {
-    const {name,email} = req.body;
-// db action
-    const response = await axios.post("https://habib-projects.app.n8n.cloud/webhook-test/d875f485-b3cc-441b-9b7e-d27e0e420da8",{name,email});
-    if(response.status === 200){
-       return res.json({
-        message:"n8n call success",
-        data:{...response.data}
-       })
-    }
-  } catch (error) {
-    return res.json({
-        message:"n8n call failed",
-      
-       }).status(500)
-  }
-});
-
 
 export const startServer = async () => {
 

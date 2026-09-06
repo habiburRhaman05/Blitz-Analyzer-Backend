@@ -1,5 +1,6 @@
 import { Groq } from "groq-sdk"
 import { envConfig } from "../../config/env"
+import { logger } from "../../utils/logger"
 
 
 const groq = new Groq({
@@ -20,7 +21,6 @@ export const runLLM = async (
     temperature: 0.1,
     response_format: { type: "json_object" }
   })
-console.log("ai",completion.choices[0].message.content);
 
   return JSON.parse(
     completion.choices[0].message.content || "{}"
@@ -29,9 +29,8 @@ console.log("ai",completion.choices[0].message.content);
 
 
 export const analyzeJobMatch = async (resumeText: string, jobData: { title: string; description: string }) => {
-  console.log("tt",jobData.title);
-  console.log("tt",jobData.description);
-  
+  logger.info({ jobTitle: jobData.title }, "Running job match analysis");
+
   const systemPrompt = `
 You are an advanced ATS (Applicant Tracking System) and resume analysis engine.
 

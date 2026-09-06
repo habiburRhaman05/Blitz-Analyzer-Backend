@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { AppError } from "./AppError";
 
 type SuccessOptions = {
   statusCode?: number;
@@ -45,4 +46,13 @@ export const sendError = (
       timestamp: new Date().toISOString(),
     },
   });
+};
+
+// Sends an AppError through sendError, keeping response shape consistent
+// wherever a caught AppError needs to reach the client (e.g. insufficient credits).
+export const sendAppError = (res: Response, err: unknown) => {
+  if (err instanceof AppError) {
+    return sendError(res, { message: err.message, statusCode: err.statusCode });
+  }
+  throw err;
 };

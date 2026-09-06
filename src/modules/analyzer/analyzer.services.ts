@@ -47,8 +47,6 @@ const resumeATSScan = async (resumeText: string,id:string) => {
 };
 
 const jobMatcher = async (resumeText,jobData) =>{
-console.log("sr",jobData);
-
   const result = await analyzeJobMatch(resumeText,JSON.parse(jobData));
   return result
 }
@@ -151,11 +149,17 @@ const getAllAnalysis = async (userId: string) => {
  
   
 }
-const deleteAnalysis = async (analysisId: string) => {
-  const analysis = await prisma.analysis.delete({
-    where: { id: analysisId }
+const deleteAnalysis = async (analysisId: string, userId: string) => {
+  // deleteMany scopes the delete by ownership, no separate read needed
+  const result = await prisma.analysis.deleteMany({
+    where: { id: analysisId, userId }
   });
-  return analysis
+
+  if (result.count === 0) {
+    throw new AppError("Analysis not found", status.NOT_FOUND);
+  }
+
+  return { id: analysisId };
 }
 const templateCodes = `<!DOCTYPE html>
 <html lang="en">
@@ -316,32 +320,37 @@ const templateCodes = `<!DOCTYPE html>
 </body>
 </html>`;
 
-const generateReportHandler = async (analysisId)=>{
+const generateReportHandler = async (analysisId: string, userId: string) => {
 
-  const analysis = await prisma.analysis.findUnique({
-    where:{
-      id:analysisId
+  const analysis = await prisma.analysis.findFirst({
+    where: {
+      id: analysisId,
+      userId
     }
   });
 
-  if(analysis?.result){
-    const reportPayload = {
-      id:analysis.id,
-      ...analysis.result
-    }
-    const result = await generateReport(reportPayload,templateCodes);
-
-    await prisma.analysis.update({
-      where:{id:analysis.id},
-      data:{
-       reportUrl:result
-      }
-    })
-
-   return result
+  if (!analysis) {
+    throw new AppError("Analysis not found", status.NOT_FOUND);
   }
 
-  throw new AppError("First Save the Analysis ",400)
+  if (!analysis.result) {
+    throw new AppError("First Save the Analysis", status.BAD_REQUEST);
+  }
+
+  const reportPayload = {
+    id:analysis.id,
+    ...analysis.result
+  }
+  const result = await generateReport(reportPayload,templateCodes);
+
+  await prisma.analysis.update({
+    where:{id:analysis.id},
+    data:{
+     reportUrl:result
+    }
+  })
+
+  return result
 
 
 

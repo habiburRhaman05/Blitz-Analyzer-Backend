@@ -1,17 +1,13 @@
 import type { Request, Response } from "express";
+import { fromNodeHeaders } from "better-auth/node";
 import { sendSuccess } from "../../utils/apiResponse";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { authServices } from "./auth.service";
-import { CookieUtils } from "../../utils/cookie";
 import { tokenUtils } from "../../utils/token";
 import { envConfig } from "../../config/env";
-import status from "http-status"
-import { AppError } from "../../utils/AppError";
 import { auth } from "../../lib/auth";
 import { getGoogleAuthUrl } from "../../utils/google";
 import { getRequestContext } from "../../utils/deviceInfo";
-import { log } from "handlebars/runtime";
-const isProduction = envConfig.NODE_ENV === "production";
 
 // -------------------- REGISTER --------------------
 const registerController = asyncHandler(async (req: Request, res: Response) => {
@@ -30,12 +26,9 @@ const registerController = asyncHandler(async (req: Request, res: Response) => {
 // -------------------- LOGIN --------------------
 const loginController = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  ;
 
   const data = await authServices.loginUser({ email, password })
 
-  tokenUtils.setAccessTokenCookie(res, data.accessToken)
-  tokenUtils.setRefreshTokenCookie(res, data.refreshToken)
   tokenUtils.setBetterAuthSessionCookie(res, data.sessionToken)
 
   return sendSuccess(res, {
@@ -55,35 +48,20 @@ const getUserProfileController = asyncHandler(async (req: Request, res: Response
 // -------------------- LOGOUT --------------------
 const logoutUserController = asyncHandler(async (req: Request, res: Response) => {
 
+  // signOut deletes the session row in Postgres and clears the cookie,
+  // so the session is actually revoked, not just removed from the browser
+  const { headers } = await auth.api.signOut({
+    headers: fromNodeHeaders(req.headers),
+    returnHeaders: true,
+  });
 
-  const better_auth_session_token = req.cookies["better-auth.session_token"]
-  const refreshToken = req.cookies["refreshToken"]
+  const clearedCookies = headers.getSetCookie?.() ?? [];
+  if (clearedCookies.length > 0) {
+    res.setHeader("Set-Cookie", clearedCookies);
+  }
 
-  const user = await authServices.logoutUser(better_auth_session_token,refreshToken)
-  CookieUtils.clearCookie(res, "accessToken", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    path: '/',
-    maxAge: 15 * 60 * 1000,
-  })
-  CookieUtils.clearCookie(res, "refreshToken", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    path: '/',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  })
-  CookieUtils.clearCookie(res, "better-auth.session_token", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    path: '/',
-    maxAge: 24 * 60 * 60 * 1000,
-  })
   return sendSuccess(res, {
     statusCode: 200,
-    data: user,
     message: "User Logout Successfully"
   })
 });
@@ -109,31 +87,6 @@ console.log(req.body);
     statusCode: 200,
     data: user,
     message: "Password change Successfully"
-  })
-});
-// -------------------- REFRESH TOKEN --------------------
-const getRefreshTokenController = asyncHandler(async (req: Request, res: Response) => {
-
-
-
-  const refreshToken = req.cookies.refreshToken;
- 
-  if (!refreshToken) {
-    throw new AppError("Refresh token is missing", status.UNAUTHORIZED);
-  }
-
-  // const  {cookie,token} = req.body;
-  const result = await authServices.getAllNewTokens(refreshToken)
-  // console.log(sessionToken);
-
-  tokenUtils.setAccessTokenCookie(res, result.accessToken)
-  tokenUtils.setRefreshTokenCookie(res, result.refreshToken)
-  tokenUtils.setBetterAuthSessionCookie(res, result.sessionToken)
-
-  return sendSuccess(res, {
-    statusCode: 201,
-    message: "refresh token generate Successfully",
-    data: result
   })
 });
 // -------------------- REQUEST FOR RESET PASSWORD MAIL --------------------
@@ -234,42 +187,26 @@ const googleLogin = asyncHandler(async (req: Request, res: Response) => {
 })
 
 const googleLoginSuccess = asyncHandler(async (req: Request, res: Response) => {
-  const redirectPath = req.query.redirect as string || "/dashboard/patient";
+  const redirectPath = req.query.redirect as string || "/dashboard";
 
-  const sessionToken = req.cookies["better-auth.session_token"];
+  // better-auth's own OAuth flow already set the session cookie before
+  // redirecting here, we just need to confirm it and create the profile
+  const { response: session } = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+    returnHeaders: true,
+  });
 
-  if (!sessionToken) {
-    return res.redirect(`${envConfig.CLIENT_URL}/login?error=oauth_failed`);
-  }
-
-  const session = await auth.api.getSession({
-    headers: {
-      "Cookie": `better-auth.session_token=${sessionToken}`
-    }
-  })
-
-  if (!session) {
+  if (!session?.user) {
     return res.redirect(`${envConfig.CLIENT_URL}/login?error=no_session_found`);
   }
 
-
-  if (session && !session.user) {
-    return res.redirect(`${envConfig.CLIENT_URL}/login?error=no_user_found`);
-  }
-
-  const result = await authServices.googleLoginSuccess(session);
-
-  const { accessToken, refreshToken,sessionToken:token } = result;
-
-  tokenUtils.setAccessTokenCookie(res, accessToken);
-  tokenUtils.setRefreshTokenCookie(res, refreshToken);
+  await authServices.googleLoginSuccess(session);
 
   // ?redirect=//profile -> /profile
   const isValidRedirectPath = redirectPath.startsWith("/") && !redirectPath.startsWith("//");
-  // const finalRedirectPath = isValidRedirectPath ? redirectPath : "/dashboard";
-console.log(redirectPath);
+  const finalRedirectPath = isValidRedirectPath ? redirectPath : "/dashboard";
 
-  res.redirect(`${envConfig.CLIENT_URL}${redirectPath}`);
+  res.redirect(`${envConfig.CLIENT_URL}${finalRedirectPath}`);
 });
 
 
@@ -296,11 +233,8 @@ const googleCallback = asyncHandler(async (req: Request, res: Response) => {
   try {
     const ctx = getRequestContext(req);
     const result = await authServices.googleOAuthCallback(code, ctx);
-    console.log(result);
-    
-    tokenUtils.setAccessTokenCookie(res, result.accessToken);
-    tokenUtils.setRefreshTokenCookie(res, result.refreshToken);
-      tokenUtils.setBetterAuthSessionCookie(res, result?.sessionToken)
+
+    tokenUtils.setBetterAuthSessionCookie(res, result.sessionToken)
     res.redirect(`${envConfig.CLIENT_URL}/dashboard`);
   } catch (err) {
     const msg = err instanceof Error ? encodeURIComponent(err.message) : "oauth_failed";
@@ -323,7 +257,6 @@ const handleOAuthError = asyncHandler(async (req: Request, res: Response) => {
 export const authControllers = {
   registerController, loginController, getUserProfileController, logoutUserController,
   changePasswordController,
-  getRefreshTokenController,
   requestPasswordResetController, resetPasswordController,
   verifyEmail,
   updateProfileInfo,changeProfileAvatar,

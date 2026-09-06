@@ -24,5 +24,19 @@ export interface SaveAnalysisPayload {
   id: string
   resumeText: string
   result: any
-  
+
+}
+
+// Payload stored on an analysisQueue job, shared by all five job names
+// so one worker can dispatch on job.name using a single data shape.
+export interface AnalysisJobData {
+  userId: string;
+  jobId: string;
+  creditCost: number;
+  parseText?: string;
+  jobData?: string;
+  resumeText?: string;
+  prompt?: string;
+  title?: string;
+  content?: string[];
 }

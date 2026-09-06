@@ -1,76 +1,71 @@
 import { Request, Response, NextFunction } from "express";
+import { fromNodeHeaders } from "better-auth/node";
 import { prisma } from "../lib/prisma";
-import { CookieUtils } from "../utils/cookie";
+import { auth } from "../lib/auth";
 import { sendError } from "../utils/apiResponse";
-import { CustomerProfile, UserRole } from "../generated/prisma/client";
+import { UserRole } from "../generated/prisma/client";
 
+// Single source of truth for auth: better-auth's own session check.
+// Calling it (instead of a raw Session table lookup) is what makes
+// better-auth's rolling renewal and cookie cache actually work, so any
+// renewed cookie it returns must be relayed back to the client.
 export async function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const sessionToken = 
-      CookieUtils.getCookie(req, "better-auth.session_token") || 
-      (req.headers.authorization?.startsWith("Bearer ") ? req.headers.authorization.split(" ")[1] : null);
-   
+    const { headers, response } = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+      returnHeaders: true,
+    });
 
-    if (!sessionToken) {
+    const renewedCookies = headers.getSetCookie?.() ?? [];
+    if (renewedCookies.length > 0) {
+      res.setHeader("Set-Cookie", renewedCookies);
+    }
+
+    if (!response?.user) {
       return sendError(res, {
         message: "Unauthorized: No session token provided",
         statusCode: 401
       });
     }
-    
-   const token = sessionToken.split(".")[0];
-    const sessionData = await prisma.session.findUnique({
-      where: {
-        token: token,
-        expiresAt: { gt: new Date() }
-      },
-      
-      include: { user: {
-        include:{customerProfile:true,admin:true,manager:true}
-      } }
-    });
- 
-    if (!sessionData || !sessionData.user) {
+
+    const sessionUser = response.user as any;
+
+    if (
+      sessionUser.status === "BANNED" ||
+      sessionUser.status === "DELETED" ||
+      sessionUser.isDeleted
+    ) {
       return sendError(res, {
-        message: "Unauthorized: Invalid or expired session",
-        statusCode: 401
-      });
-    }
-
-    const { user } = sessionData;
-
-
-
-    if (user.status === "BANNED" || user.status === "DELETED" || user.isDeleted) {
-      return sendError(res, {
-        message: `Unauthorized: Account is ${user.status.toLowerCase()}`,
+        message: `Unauthorized: Account is ${String(sessionUser.status).toLowerCase()}`,
         statusCode: 403
       });
     }
 
-    const now = new Date().getTime();
-    const expiresAt = new Date(sessionData.expiresAt).getTime();
-    const createdAt = new Date(sessionData.createdAt).getTime();
+    const role = sessionUser.role as UserRole;
 
-    const totalLifetime = expiresAt - createdAt;
-    const remainingTime = expiresAt - now;
-    const percentRemaining = (remainingTime / totalLifetime) * 100;
+    const profile = role === UserRole.USER
+      ? await prisma.customerProfile.findUnique({ where: { userId: sessionUser.id } })
+      : role === UserRole.MANAGER
+        ? await prisma.manager.findUnique({ where: { userId: sessionUser.id } }) as any
+        : await prisma.admin.findUnique({ where: { userId: sessionUser.id } }) as any;
 
-    if (percentRemaining < 20) {
-      res.setHeader('X-Session-Refresh', 'true');
-      res.setHeader('X-Session-Expires-At', sessionData.expiresAt.toISOString());
+    if (!profile) {
+      return sendError(res, {
+        message: "Unauthorized: Profile not found",
+        statusCode: 401
+      });
     }
 
     res.locals.auth = {
-      userId: user.id,
-      role: user.role,
-      email: user.email,
+      userId: sessionUser.id,
+      role,
+      email: sessionUser.email,
     };
-    res.locals.user = user.role === UserRole.USER ? user.customerProfile as CustomerProfile :  user.role === UserRole.MANAGER ?  user.manager : user.admin as any
+    res.locals.user = profile;
 
     return next();
   } catch (error) {
@@ -89,7 +84,7 @@ export function roleMiddleware(allowedRoles: ("ADMIN" | "USER" | "MANAGER")[]) {
     if (!auth || !allowedRoles.includes(auth.role)) {
       return sendError(res,{
           errors: true,
-        message: "Forbidden: You do not have permission to perform this action", 
+        message: "Forbidden: You do not have permission to perform this action",
       statusCode:403
       })
     }

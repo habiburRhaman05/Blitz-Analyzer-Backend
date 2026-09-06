@@ -4,6 +4,7 @@ import { authMiddleware, roleMiddleware } from "../../middleware/auth-middleware
 import { analyzerControllers } from "./analyzer.controller";
 import { validateRequest } from "../../middleware/validateRequest";
 import { completeAnalysisSchema, parseResumeSchema } from "./analyzer.validation";
+import { aiLimiter } from "../../middleware";
 
 const analyzerRouter: Router = Router();
 
@@ -21,6 +22,7 @@ analyzerRouter.post(
   "/parse-resume",
   authMiddleware,
     roleMiddleware(["USER"]),
+  aiLimiter,
   upload.single("resume"),
   validateRequest(parseResumeSchema),
   analyzerControllers.parseResumeController
@@ -29,6 +31,7 @@ analyzerRouter.post(
   "/job-matcher",
   authMiddleware,
     roleMiddleware(["USER"]),
+  aiLimiter,
   upload.single("resume"),
   analyzerControllers.jobMatcherController
 );
@@ -38,8 +41,19 @@ analyzerRouter.post(
   "/analysis/:id",
   authMiddleware,
     roleMiddleware(["USER"]),
+  aiLimiter,
  validateRequest(completeAnalysisSchema),
   analyzerControllers.completeAnalysesResumeResult
+);
+
+
+// polling for any analysisQueue job, not rate-limited like the AI routes
+// since it's a cheap Redis/queue lookup, not a Groq call
+analyzerRouter.get(
+  "/job-status/:id",
+  authMiddleware,
+    roleMiddleware(["USER"]),
+  analyzerControllers.getJobStatus
 );
 
 
@@ -55,6 +69,7 @@ analyzerRouter.post(
   "/resume/improve",
   authMiddleware,
     roleMiddleware(["USER"]),
+  aiLimiter,
   analyzerControllers.applyImprovementController
 );
 
@@ -64,6 +79,7 @@ analyzerRouter.post(
   "/resume/ats-optimize",
   authMiddleware,
     roleMiddleware(["USER"]),
+  aiLimiter,
   analyzerControllers.makeAtsFriendlyController
 );
 

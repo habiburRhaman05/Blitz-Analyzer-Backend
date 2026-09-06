@@ -13,10 +13,6 @@ const envSchema = z.object({
   BCRYPT_SALT_ROUNDS: z.coerce.number().int().min(4).max(31).default(12),
   
   BETTER_AUTH_SECRET: z.string().min(32),
-  ACCESS_TOKEN_SECRET: z.string().min(32),
-  ACCESS_TOKEN_EXPIRES_IN: z.string().default('15m'),
-  REFRESH_TOKEN_SECRET: z.string().min(32),
-  REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
 
   BETTER_AUTH_URL: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),

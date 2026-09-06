@@ -4,8 +4,6 @@ import PDFDocument from 'pdfkit';
 import { IInvoicePayload } from './payment.interface';
 
 export const generatePaymentInvoiceBuffer = (data: IInvoicePayload): Promise<Buffer> => {
-   console.log(data);
-   
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
     const chunks: Buffer[] = [];

@@ -32,10 +32,6 @@ authMiddleware,
   authControllers.logoutUserController
 );
 router.post(
-  "/refresh-token",
-  authControllers.getRefreshTokenController
-);
-router.post(
   "/request-reset-password",
   authControllers.requestPasswordResetController
 );
