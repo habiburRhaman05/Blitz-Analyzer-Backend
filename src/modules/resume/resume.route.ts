@@ -1,7 +1,14 @@
 import { Router } from "express";
+import multer from "multer";
 import { authMiddleware, roleMiddleware } from "../../middleware/auth-middlewares";
 import { resumeControllers } from "./resume.controller";
 const resumeRouter: Router = Router();
+
+// In-memory upload for the browser-generated PDF share flow (<= 10MB).
+const pdfUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 resumeRouter.post(
   "/:resumeId/update-resume",
@@ -44,6 +51,14 @@ resumeRouter.post(
 
 
 
+
+resumeRouter.post(
+  "/:id/share-pdf",
+  authMiddleware,
+  roleMiddleware(["USER"]),
+  pdfUpload.single("file"),
+  resumeControllers.shareResumePdf
+);
 
 resumeRouter.get(
   "/",

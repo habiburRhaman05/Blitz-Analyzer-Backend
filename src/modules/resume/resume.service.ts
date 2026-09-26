@@ -4,6 +4,7 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import { generateCustomResumePDF, generateResumePDF, mergeResume, uploadCustomResumepdf, uploadResume } from "./resume.utils";
 import { cloudinaryInstance } from "../../config/cloudinary.config";
+import { uploadPdfBufferToCloudinary } from "../media/media.service";
 import streamifier from "streamifier";
 import { getProfileCacheKey } from "../auth/auth.service";
 import { redis } from "../../config/redis";
@@ -237,4 +238,29 @@ const generateCustomResumeForDownload = async (htmlContent, userId) => {
    return uploadPDFUrl
 }
 
-export const resumeServices = { generateResumeForDownload, initResume, saveChanges, getAllResumeById, deleteResume, generateCustomResumeForDownload }
+// Stores a browser-generated PDF to Cloudinary and returns its URL. Called
+// ONLY when the user explicitly asks for a shareable link - normal download
+// happens entirely in the browser and never touches the cloud.
+const shareResumePdf = async (
+   { userId, resumeId, buffer }: { userId: string; resumeId: string; buffer: Buffer }
+) => {
+   const resume = await prisma.resume.findFirst({
+      where: { id: resumeId, userId },
+   });
+   if (!resume) throw new AppError("Resume not found", status.NOT_FOUND);
+
+   const uploaded = await uploadPdfBufferToCloudinary(buffer, "Resume", {
+      resource_type: "raw",
+      folder: "blitz-analyzer/resumes",
+      public_id: `resume-share-${resumeId}.pdf`,
+   });
+
+   await prisma.resume.update({
+      where: { id: resumeId },
+      data: { resumeUrl: uploaded.secure_url },
+   });
+
+   return { resumeUrl: uploaded.secure_url };
+};
+
+export const resumeServices = { generateResumeForDownload, initResume, saveChanges, getAllResumeById, deleteResume, generateCustomResumeForDownload, shareResumePdf }

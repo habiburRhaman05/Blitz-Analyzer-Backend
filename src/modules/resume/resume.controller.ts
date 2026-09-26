@@ -3,6 +3,7 @@
 import status from "http-status";
 import { sendSuccess } from "../../utils/apiResponse";
 import { asyncHandler } from "../../utils/asyncHandler";
+import { AppError } from "../../utils/AppError";
 import { resumeServices } from "./resume.service";
 
 const updateResume = asyncHandler(async (req, res) => {
@@ -89,7 +90,28 @@ const generateCustomResumeForDownload = asyncHandler(async (req, res) => {
     })
 })
 
+// Accepts a browser-generated PDF (multipart "file") and stores it, returning
+// a shareable URL. Only hit when the user clicks "Get shareable link".
+const shareResumePdf = asyncHandler(async (req, res) => {
+    const file = (req as any).file;
+    if (!file?.buffer) {
+        throw new AppError("No PDF file provided", status.BAD_REQUEST);
+    }
+
+    const result = await resumeServices.shareResumePdf({
+        userId: res.locals.user.id,
+        resumeId: req.params.id as string,
+        buffer: file.buffer,
+    });
+
+    return sendSuccess(res, {
+        data: result,
+        message: "shareable link ready",
+        statusCode: status.CREATED,
+    });
+});
+
 export const resumeControllers = {
     updateResume, initlizeResume, generateResumeForDownload, getAllResumeById, deleteResume,
-    generateCustomResumeForDownload
+    generateCustomResumeForDownload, shareResumePdf
 }
